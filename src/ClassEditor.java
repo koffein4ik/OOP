@@ -16,6 +16,7 @@ import javafx.scene.layout.FlowPane;
 import javafx.geometry.Insets;
 import javafx.scene.control.ListView;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 
@@ -29,25 +30,38 @@ public class ClassEditor extends Application {
     public void start(Stage primaryStage) {
         Pane root = new Pane();
         root.setPadding(new Insets(10));
-        Class<Airport> Airp = Airport.class;
-        Field[] declaredFields = Airp.getDeclaredFields();
+        Class<PassengerPlane> Airp = PassengerPlane.class;
+        Field[] declaredFields = Airp.getFields();
         for (Field field : declaredFields)
         {
             System.out.println(field);
         }
         declaredFields[1].setAccessible(true);
-        Airport Heathrow = new Airport();
+        Passenger Heathrow = new Passenger();
         Class<?> h = Heathrow.getClass();
+        System.out.println(h.getTypeName());
         try {
-            Field location = h.getDeclaredField("location");
+            //Field name = h.getDeclaredField("name");
+            Field name =h.getField("name");
             String loc = "London";
-            location.set(Heathrow, loc);
+            name.set(Heathrow, loc);
         }
         catch (Exception ex)
         {
+            System.out.println(ex.toString());
+        }
+        System.out.println(Heathrow.name);
+        try {
+            Class<?> clazz = Class.forName("Airport");
+            Object example = clazz.newInstance();
+        }
+        catch(Exception ex) {
+            System.out.println(ex.toString());
+        }
 
-        };
-        System.out.println(Heathrow.location);
+        ArrayList<Object> classes = new ArrayList<Object>();
+
+
         ArrayList<String> classNames = new ArrayList<String>();
         classNames.add(Airport.class.getName());
         classNames.add(AircrewMember.class.getName());
@@ -58,19 +72,47 @@ public class ClassEditor extends Application {
         classNames.add(Passenger.class.getName());
         classNames.add(PassengerPlane.class.getName());
         classNames.add(Pilot.class.getName());
-        ObservableList<String> classes = FXCollections.observableArrayList(classNames);
-        ListView<String> ClassView = new ListView<String>(classes);
+        //ObservableList<String> classes = FXCollections.observableArrayList(classNames);
         ObservableList<String> createdClasses = FXCollections.observableArrayList();
         ListView<String> createdClassesView = new ListView<String>(createdClasses);
-        ClassView.setPrefHeight(400);
-        ClassView.setPrefWidth(200);
-        ClassView.setLayoutX(10);
-        ClassView.setLayoutY(10);
-        createdClassesView.setPrefHeight(400);
-        createdClassesView.setLayoutX(250);
-        createdClassesView.setLayoutY(10);
         createdClasses.add("Airbus");
         createdClasses.add("John");
+
+        ArrayList<humanFactory> humanCreator = new ArrayList<humanFactory>();
+        humanCreator.add(new employeeFactory());
+        humanCreator.add(new humanFactory());
+        humanCreator.add(new pilotFactory());
+        humanCreator.add(new aircrewMFactory());
+        humanCreator.add(new securityFactory());
+        humanCreator.add(new passengerFactory());
+        Object John = humanCreator.get(2).createPerson();
+        Class<?> pil = John.getClass();
+        String name1 = "John";
+        try {
+            Field name2 = pil.getField("name");
+            name2.set(John, name1);
+        }
+        catch (Exception ex)
+        {
+
+        }
+        System.out.println(((Human) John).name);
+
+        Field[] declaredFields1 = pil.getFields();
+        for (Field field : declaredFields1)
+        {
+            System.out.println(field);
+        }
+        try {
+            Field mfield = John.getClass().getField("name");
+            System.out.println("---" + mfield.get(John).toString());
+        }
+        catch (Exception ex)
+        {
+
+        }
+
+
         primaryStage.setTitle("Class Editor");
         primaryStage.centerOnScreen();
         Button btn1 = new Button("Add");
@@ -82,7 +124,7 @@ public class ClassEditor extends Application {
         btn2.setPrefWidth(80);
         btn2.setLayoutX(420);
         btn2.setLayoutY(500);
-        root.getChildren().addAll(ClassView, createdClassesView, /*editor,*/ btn1, btn2);
+        root.getChildren().addAll(createdClassesView, /*editor,*/ btn1, btn2);
         Scene scene = new Scene(root, 350, 150);
         primaryStage.setScene(scene);
         primaryStage.setWidth(850);
