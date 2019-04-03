@@ -18,6 +18,7 @@ import javafx.scene.control.ListView;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 
 public class ClassEditor extends Application {
@@ -30,101 +31,44 @@ public class ClassEditor extends Application {
     public void start(Stage primaryStage) {
         Pane root = new Pane();
         root.setPadding(new Insets(10));
-        Class<PassengerPlane> Airp = PassengerPlane.class;
-        Field[] declaredFields = Airp.getFields();
-        for (Field field : declaredFields)
-        {
-            System.out.println(field);
-        }
-        declaredFields[1].setAccessible(true);
-        Passenger Heathrow = new Passenger();
-        Class<?> h = Heathrow.getClass();
-        System.out.println(h.getTypeName());
-        try {
-            //Field name = h.getDeclaredField("name");
-            Field name =h.getField("name");
-            String loc = "London";
-            name.set(Heathrow, loc);
-        }
-        catch (Exception ex)
-        {
-            System.out.println(ex.toString());
-        }
-        System.out.println(Heathrow.name);
-        try {
-            Class<?> clazz = Class.forName("Airport");
-            Object example = clazz.newInstance();
-        }
-        catch(Exception ex) {
-            System.out.println(ex.toString());
-        }
 
-        ArrayList<Object> classes = new ArrayList<Object>();
+        ListView<String> createdClassesView = new ListView<>(list123);
 
-
-        ArrayList<String> classNames = new ArrayList<String>();
-        classNames.add(Airport.class.getName());
-        classNames.add(AircrewMember.class.getName());
-        classNames.add(Plane.class.getName());
-        classNames.add(CargoPlane.class.getName());
-        classNames.add(Employee.class.getName());
-        classNames.add(Human.class.getName());
-        classNames.add(Passenger.class.getName());
-        classNames.add(PassengerPlane.class.getName());
-        classNames.add(Pilot.class.getName());
-        //ObservableList<String> classes = FXCollections.observableArrayList(classNames);
-        ObservableList<String> createdClasses = FXCollections.observableArrayList();
-        ListView<String> createdClassesView = new ListView<String>(createdClasses);
-        createdClasses.add("Airbus");
-        createdClasses.add("John");
-
-        ArrayList<humanFactory> humanCreator = new ArrayList<humanFactory>();
-        humanCreator.add(new employeeFactory());
-        humanCreator.add(new humanFactory());
-        humanCreator.add(new pilotFactory());
-        humanCreator.add(new aircrewMFactory());
-        humanCreator.add(new securityFactory());
-        humanCreator.add(new passengerFactory());
-        Object John = humanCreator.get(2).createPerson();
-        Class<?> pil = John.getClass();
-        String name1 = "John";
-        try {
-            Field name2 = pil.getField("name");
-            name2.set(John, name1);
-        }
-        catch (Exception ex)
-        {
-
-        }
-        System.out.println(((Human) John).name);
-
-        Field[] declaredFields1 = pil.getFields();
-        for (Field field : declaredFields1)
-        {
-            System.out.println(field);
-        }
-        try {
-            Field mfield = John.getClass().getField("name");
-            System.out.println("---" + mfield.get(John).toString());
-        }
-        catch (Exception ex)
-        {
-
-        }
-
+        objFactory.add(new humanFactory());
+        objFactory.add(new employeeFactory());
+        objFactory.add(new aircrewMFactory());
+        objFactory.add(new passengerFactory());
+        objFactory.add(new pilotFactory());
+        objFactory.add(new securityFactory());
+        objFactory.add(new planeFactory());
+        objFactory.add(new cargoPlaneFactory());
+        objFactory.add(new passengerPlaneFactory());
+        objFactory.add(new airportFactory());
 
         primaryStage.setTitle("Class Editor");
         primaryStage.centerOnScreen();
         Button btn1 = new Button("Add");
-        btn1.setOnAction(event->ModalWindow.newWindow());
+        btn1.setOnAction(event->CreateClass.createWindow());
         btn1.setPrefWidth(80);
-        btn1.setLayoutX(320);
+        btn1.setLayoutX(250);
         btn1.setLayoutY(500);
         Button btn2 = new Button("Delete");
+        // ИЗМЕНИТЬ
+        //
+        //
+        // btn2.setOnAction();
+        //
+        //
+        //
         btn2.setPrefWidth(80);
-        btn2.setLayoutX(420);
+        btn2.setLayoutX(380);
         btn2.setLayoutY(500);
-        root.getChildren().addAll(createdClassesView, /*editor,*/ btn1, btn2);
+        Button btn3 = new Button("Edit");
+        btn3.setOnAction(event->FieldEditor.createWindow(createdClassesView.getSelectionModel().getSelectedIndex()));
+        btn3.setPrefWidth(80);
+        btn3.setLayoutY(500);
+        btn3.setLayoutX(500);
+        root.getChildren().addAll(createdClassesView, btn1, btn2, btn3);
         Scene scene = new Scene(root, 350, 150);
         primaryStage.setScene(scene);
         primaryStage.setWidth(850);
@@ -132,4 +76,26 @@ public class ClassEditor extends Application {
         primaryStage.setResizable(false);
         primaryStage.show();
     }
+
+    public static void update(String name)
+    {
+        int currIndex = createdClasses.size() - 1;
+        try
+        {
+            Method m = createdClasses.get(currIndex).getClass().getMethod("setName", String.class);
+            m.invoke(createdClasses.get(currIndex), name);
+            Method m1 = createdClasses.get(currIndex).getClass().getMethod("getName");
+            System.out.println(m1.invoke(createdClasses.get(currIndex)));
+
+        }
+        catch (Exception ex)
+        {
+            System.out.println(ex.toString());
+        }
+        list123.add(createdClasses.get(currIndex).getClass().getName() + " " + name);
+    }
+    public static ObservableList<String> list123 = FXCollections.observableArrayList();
+    public static ArrayList<factory> objFactory = new ArrayList<factory>();
+    public static ArrayList<Object> createdClasses = new ArrayList<Object>();
+
 }
