@@ -22,7 +22,7 @@ public class GetFieldData {
         }
         catch (Exception ex)
         {
-            System.out.println(ex.toString());
+            //System.out.println(ex.toString());
             return "";
         }
     }

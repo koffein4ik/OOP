@@ -56,7 +56,10 @@ public class ClassEditor extends Application {
         btn2.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
+                if (createdClassesView.getSelectionModel().getSelectedIndex() == (-1)) return;
+                System.out.println(createdClassesView.getSelectionModel().getSelectedIndex());
                 createdClasses.remove(createdClassesView.getSelectionModel().getSelectedIndex());
+
                 list123.remove(createdClassesView.getSelectionModel().getSelectedIndex());
                 for(int i = 0; i < createdClasses.size(); i++)
                 {
@@ -104,7 +107,7 @@ public class ClassEditor extends Application {
         btn2.setLayoutX(380);
         btn2.setLayoutY(500);
         Button btn3 = new Button("Edit");
-        btn3.setOnAction(event->FieldEditor.createWindow(createdClassesView.getSelectionModel().getSelectedIndex()));
+        btn3.setOnAction(event -> FieldEditor.createWindow(createdClassesView.getSelectionModel().getSelectedIndex()));
         btn3.setPrefWidth(80);
         btn3.setLayoutY(500);
         btn3.setLayoutX(500);

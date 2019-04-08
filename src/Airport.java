@@ -1,5 +1,3 @@
-import sun.java2d.Disposer;
-
 import java.util.ArrayList;
 
 public class Airport {
@@ -11,6 +9,26 @@ public class Airport {
     public ArrayList<Object> airlines = new ArrayList<>();
     public ArrayList<Object> planes = new ArrayList<>();
     public ArrayList<Object> employees = new ArrayList<>();
+
+    public void setPassengersPerYear(int passengersPerYear) {
+        this.passengersPerYear = passengersPerYear;
+    }
+
+    public String getIataCode() {
+        return iataCode;
+    }
+
+    public void setIataCode(String iataCode) {
+        this.iataCode = iataCode;
+    }
+
+    public String getTimeZone() {
+        return timeZone;
+    }
+
+    public void setTimeZone(String timeZone) {
+        this.timeZone = timeZone;
+    }
 
     public void setName(String name) {
         this.name = name;

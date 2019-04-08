@@ -12,6 +12,7 @@ import javax.swing.*;
 import java.lang.reflect.Array;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.List;
 
 public class ListEditor extends Application {
 
@@ -54,6 +55,15 @@ public class ListEditor extends Application {
         String className = fieldname.substring(0, 1).toUpperCase() + fieldname.substring(1, fieldname.length() - 1);
         for (int i = 0; i < ClassEditor.createdClasses.size(); i++)
         {
+            Class<?> test = ClassEditor.createdClasses.get(i).getClass();
+            ArrayList<String> superclasses = new ArrayList<String>();
+            superclasses.clear();
+            while(test.getSuperclass() != null)
+            {
+                System.out.println(test.toString());
+                superclasses.add(test.toString());
+                test = test.getSuperclass();
+            }
             if (ClassEditor.createdClasses.get(i).getClass().getTypeName().equals(className)) {
                 String result = GetFieldData.getData(i, ClassEditor.createdClasses.get(index).getClass().getName());
                 if (result.equals(""))

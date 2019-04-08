@@ -6,6 +6,8 @@ import javafx.scene.control.Control;
 import javafx.scene.control.Label;
 import javafx.scene.control.Separator;
 import javafx.scene.layout.FlowPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.geometry.Insets;
@@ -26,6 +28,7 @@ public class FieldEditor extends Application {
 
     public static void createWindow(int index)
     {
+        if (index == -1) return;
         ArrayList<Control> controls = new ArrayList<Control>();
         Class<?> cl = ClassEditor.createdClasses.get(index).getClass();
         Field[] fields = cl.getFields();
