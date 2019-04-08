@@ -60,11 +60,11 @@ public class ListEditor extends Application {
             superclasses.clear();
             while(test.getSuperclass() != null)
             {
-                System.out.println(test.toString());
+                //System.out.println(test.toString());
                 superclasses.add(test.toString());
                 test = test.getSuperclass();
             }
-            if (ClassEditor.createdClasses.get(i).getClass().getTypeName().equals(className)) {
+            if (superclasses.contains("class " + className)) {
                 String result = GetFieldData.getData(i, ClassEditor.createdClasses.get(index).getClass().getName());
                 if (result.equals(""))
                 {
