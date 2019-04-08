@@ -2,12 +2,12 @@ public class Plane {
     public String name;
     public String model;
     public String regNumber;
-    public String airport;
     public int maxSpeed;
     public int flightRange;
     public int maxHeight;
     public int fuelCapacity;
     public int crewMembers;
+    public Airport airport;
 
     public void setName(String name)
     {
@@ -19,16 +19,14 @@ public class Plane {
         return this.name;
     }
 
-    public String getAirport()
+    public Airport getAirport()
     {
-        if (this.airport != null)
-        {
-            return this.airport;
-        }
-        else
-        {
-            return "";
-        }
+        return this.airport;
+    }
+
+    public void setAirport(Airport newAirp)
+    {
+        this.airport = newAirp;
     }
 }
 

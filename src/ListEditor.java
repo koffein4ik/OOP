@@ -143,6 +143,13 @@ public class ListEditor extends Application {
         {
             Method m1 = ClassEditor.createdClasses.get(index).getClass().getMethod(settername, ArrayList.class);
             m1.invoke(ClassEditor.createdClasses.get(index), addedObjects);
+            String childFieldName = ClassEditor.createdClasses.get(index).getClass().getName();
+            childFieldName = childFieldName.toLowerCase();
+            for (int i = 0; i < addedObjects.size(); i++)
+            {
+                int childIndex = ClassEditor.createdClasses.indexOf(addedObjects.get(i));
+                FieldEditor.setObjectField(childIndex, index, childFieldName, ClassEditor.createdClasses.get(index));
+            }
         }
         catch (Exception ex)
         {

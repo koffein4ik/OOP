@@ -53,13 +53,13 @@ public class ClassEditor extends Application {
         btn1.setLayoutX(250);
         btn1.setLayoutY(500);
         Button btn2 = new Button("Delete");
-        // ИЗМЕНИТЬ
-        //
-        //
-        // btn2.setOnAction();
-        //
-        //
-        //
+        btn2.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                createdClasses.remove(createdClassesView.getSelectionModel().getSelectedIndex());
+                list123.remove(createdClassesView.getSelectionModel().getSelectedIndex());
+            }
+        });
         btn2.setPrefWidth(80);
         btn2.setLayoutX(380);
         btn2.setLayoutY(500);

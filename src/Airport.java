@@ -32,19 +32,6 @@ public class Airport {
         this.location = loc;
     }
 
-    Airport()
-    {
-        Plane bp1 = new Plane();
-        bp1.setName("Airbus");
-        Plane bp2 = new Plane();
-        bp2.setName("Boeing");
-        Plane bp3 = new Plane();
-        bp3.setName("Embraer");
-        planes.add(bp1);
-        planes.add(bp2);
-        planes.add(bp3);
-    }
-
     public ArrayList<Object> getAirlines() {
         return this.airlines;
     }

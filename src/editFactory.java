@@ -13,6 +13,7 @@ public class editFactory {
     {
         Label label1 = new Label(Text);
         label1.setMinHeight(30);
+        label1.setLayoutX(10);
         return label1;
     }
 
