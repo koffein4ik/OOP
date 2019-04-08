@@ -9,6 +9,7 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 import javax.swing.*;
+import java.lang.reflect.Array;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 
@@ -53,11 +54,15 @@ public class ListEditor extends Application {
         String className = fieldname.substring(0, 1).toUpperCase() + fieldname.substring(1, fieldname.length() - 1);
         for (int i = 0; i < ClassEditor.createdClasses.size(); i++)
         {
-            if (ClassEditor.createdClasses.get(i).getClass().getTypeName().equals(className))
-            {
-                availableObjects.add(ClassEditor.createdClasses.get(i));
+            if (ClassEditor.createdClasses.get(i).getClass().getTypeName().equals(className)) {
+                String result = GetFieldData.getData(i, ClassEditor.createdClasses.get(index).getClass().getName());
+                if (result.equals(""))
+                {
+                    availableObjects.add(ClassEditor.createdClasses.get(i));
+                }
             }
         }
+
         for (int i = 0; i <  availableObjects.size(); i++)
         {
             try
@@ -98,7 +103,17 @@ public class ListEditor extends Application {
         delBtn.setLayoutX(160);
         delBtn.setPrefWidth(80);
         delBtn.setLayoutY(400);
-        root.getChildren().addAll(addedElements, availableElements, addBtn, delBtn);
+        Button saveBtn = new Button("Save");
+        saveBtn.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                save(index, fieldname, tempObjects);
+            }
+        });
+        saveBtn.setLayoutX(260);
+        saveBtn.setLayoutY(400);
+        saveBtn.setPrefWidth(80);
+        root.getChildren().addAll(addedElements, availableElements, addBtn, delBtn, saveBtn);
         editorWindow.initModality(Modality.APPLICATION_MODAL);
         editorWindow.setResizable(false);
         editorWindow.setScene(scene);
@@ -119,6 +134,20 @@ public class ListEditor extends Application {
         lv1.getItems().add(lv2.getSelectionModel().getSelectedItem());
         source.remove(index);
         lv2.getItems().remove(index);
+    }
+
+    public static void save(int index, String fieldname, ArrayList<Object> addedObjects)
+    {
+        String settername = "set" + fieldname.substring(0, 1).toUpperCase() + fieldname.substring(1);
+        try
+        {
+            Method m1 = ClassEditor.createdClasses.get(index).getClass().getMethod(settername, ArrayList.class);
+            m1.invoke(ClassEditor.createdClasses.get(index), addedObjects);
+        }
+        catch (Exception ex)
+        {
+            System.out.println(ex.toString());
+        }
     }
 
 }

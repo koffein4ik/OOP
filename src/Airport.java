@@ -22,6 +22,16 @@ public class Airport {
         return this.passengersPerYear;
     }
 
+    public String getLocation()
+    {
+        return this.location;
+    }
+
+    public void setLocation(String loc)
+    {
+        this.location = loc;
+    }
+
     Airport()
     {
         Plane bp1 = new Plane();

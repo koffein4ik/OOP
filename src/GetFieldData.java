@@ -11,7 +11,14 @@ public class GetFieldData {
         {
             Method m1 = ClassEditor.createdClasses.get(index).getClass().getMethod(mehtodName);
             data = m1.invoke(ClassEditor.createdClasses.get(index)).toString();
-            return data;
+            if (data != null)
+            {
+                return data;
+            }
+            else
+            {
+                return "";
+            }
         }
         catch (Exception ex)
         {
