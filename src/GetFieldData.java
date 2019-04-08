@@ -55,6 +55,23 @@ public class GetFieldData {
         }
     }
 
+    public static Object getObject(int index, String fieldname)
+    {
+        Object obj;
+        String mehtodName;
+        mehtodName = "get" + fieldname.substring(0, 1).toUpperCase() + fieldname.substring(1);
+        try {
+            Method m1 = ClassEditor.createdClasses.get(index).getClass().getMethod(mehtodName);
+            obj = m1.invoke(ClassEditor.createdClasses.get(index));
+            return obj;
+        }
+        catch (Exception ex)
+        {
+            System.out.println(ex.toString());
+            return "";
+        }
+    }
+
     public static ArrayList<Object> getComplexData(int index, String fieldname)
     {
         ArrayList<Object> data = new ArrayList<>();

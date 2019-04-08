@@ -92,7 +92,7 @@ public class FieldEditor extends Application {
         String settername = "set" + fieldname.substring(0, 1).toUpperCase() + fieldname.substring(1);
         try
         {
-            Method m1 = ClassEditor.createdClasses.get(index).getClass().getMethod(settername, /*ClassEditor.createdClasses.get(parentindex).getClass()*/ obj.getClass());
+            Method m1 = ClassEditor.createdClasses.get(index).getClass().getMethod(settername, obj.getClass());
             m1.invoke(ClassEditor.createdClasses.get(index), obj);
         }
         catch (Exception ex)

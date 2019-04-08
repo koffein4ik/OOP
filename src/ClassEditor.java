@@ -58,6 +58,46 @@ public class ClassEditor extends Application {
             public void handle(ActionEvent event) {
                 createdClasses.remove(createdClassesView.getSelectionModel().getSelectedIndex());
                 list123.remove(createdClassesView.getSelectionModel().getSelectedIndex());
+                for(int i = 0; i < createdClasses.size(); i++)
+                {
+                    Class<?> cl = ClassEditor.createdClasses.get(i).getClass();
+                    Field[] fields = cl.getFields();
+                    for (Field field: fields)
+                    {
+                        String fieldtype = field.getType().toString();
+                        switch (fieldtype) {
+                            case "class java.util.ArrayList":
+                            {
+                                ArrayList<Object> ItemsToCheck = new ArrayList<>();
+                                ItemsToCheck = GetFieldData.getComplexData(i, field.getName());
+                                for (int j = 0; j < ItemsToCheck.size(); j++)
+                                {
+                                    if (isObjectDeleted(ItemsToCheck.get(j)))
+                                        ItemsToCheck.remove(j);
+                                }
+                                break;
+                            }
+                            default :
+                            {
+                                Object obj = GetFieldData.getObject(i, field.getName());
+                                if (isObjectDeleted(obj))
+                                {
+                                    try
+                                    {
+                                        String settername = "set" + field.getName().substring(0, 1).toUpperCase() + field.getName().substring(1);
+                                        Method m1 = createdClasses.get(i).getClass().getMethod(settername,obj.getClass());
+                                        obj = null;
+                                        m1.invoke(createdClasses.get(i), obj);
+                                    }
+                                    catch(Exception ex)
+                                    {
+                                        System.out.println(ex.toString());
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
             }
         });
         btn2.setPrefWidth(80);
@@ -97,5 +137,13 @@ public class ClassEditor extends Application {
     public static ObservableList<String> list123 = FXCollections.observableArrayList();
     public static ArrayList<factory> objFactory = new ArrayList<factory>();
     public static ArrayList<Object> createdClasses = new ArrayList<Object>();
+
+    public static Boolean isObjectDeleted(Object obj)
+    {
+        if (!createdClasses.contains(obj))
+            return true;
+        else
+            return false;
+    }
 
 }
