@@ -1,22 +1,14 @@
-import com.sun.org.apache.xpath.internal.operations.Mod;
 import javafx.application.Application;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
-import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
-import javafx.scene.layout.FlowPane;
-import javafx.geometry.Insets;
 import javafx.scene.control.ListView;
-
-import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -33,6 +25,9 @@ public class ClassEditor extends Application {
         root.setPadding(new Insets(10));
 
         ListView<String> createdClassesView = new ListView<>(list123);
+        createdClassesView.setLayoutX(20);
+        createdClassesView.setLayoutY(20);
+        createdClassesView.setPrefWidth(300);
 
         objFactory.add(new humanFactory());
         objFactory.add(new employeeFactory());
@@ -50,14 +45,13 @@ public class ClassEditor extends Application {
         Button btn1 = new Button("Add");
         btn1.setOnAction(event->CreateClass.createWindow());
         btn1.setPrefWidth(80);
-        btn1.setLayoutX(250);
-        btn1.setLayoutY(500);
+        btn1.setLayoutX(20);
+        btn1.setLayoutY(430);
         Button btn2 = new Button("Delete");
         btn2.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
                 if (createdClassesView.getSelectionModel().getSelectedIndex() == (-1)) return;
-                System.out.println(createdClassesView.getSelectionModel().getSelectedIndex());
                 createdClasses.remove(createdClassesView.getSelectionModel().getSelectedIndex());
 
                 list123.remove(createdClassesView.getSelectionModel().getSelectedIndex());
@@ -104,38 +98,38 @@ public class ClassEditor extends Application {
             }
         });
         btn2.setPrefWidth(80);
-        btn2.setLayoutX(380);
-        btn2.setLayoutY(500);
+        btn2.setLayoutX(130);
+        btn2.setLayoutY(430);
         Button btn3 = new Button("Edit");
         btn3.setOnAction(event -> FieldEditor.createWindow(createdClassesView.getSelectionModel().getSelectedIndex()));
         btn3.setPrefWidth(80);
-        btn3.setLayoutY(500);
-        btn3.setLayoutX(500);
+        btn3.setLayoutY(430);
+        btn3.setLayoutX(240);
         root.getChildren().addAll(createdClassesView, btn1, btn2, btn3);
         Scene scene = new Scene(root, 350, 150);
         primaryStage.setScene(scene);
-        primaryStage.setWidth(850);
-        primaryStage.setHeight(600);
+        primaryStage.setWidth(350);
+        primaryStage.setHeight(500);
         primaryStage.setResizable(false);
         primaryStage.show();
     }
 
-    public static void update(String name)
+    public static void update()
     {
-        int currIndex = createdClasses.size() - 1;
-        try
+        list123.clear();
+        for (int i = 0; i < createdClasses.size(); i++)
         {
-            Method m = createdClasses.get(currIndex).getClass().getMethod("setName", String.class);
-            m.invoke(createdClasses.get(currIndex), name);
-            Method m1 = createdClasses.get(currIndex).getClass().getMethod("getName");
-            System.out.println(m1.invoke(createdClasses.get(currIndex)));
-
+            try
+            {
+                Method m1 = createdClasses.get(i).getClass().getMethod("getName");
+                String name = m1.invoke(createdClasses.get(i)).toString();
+                list123.add(createdClasses.get(i).getClass().getName() + " " + name);
+            }
+            catch (Exception ex)
+            {
+                System.out.println(ex.toString());
+            }
         }
-        catch (Exception ex)
-        {
-            System.out.println(ex.toString());
-        }
-        list123.add(createdClasses.get(currIndex).getClass().getName() + " " + name);
     }
     public static ObservableList<String> list123 = FXCollections.observableArrayList();
     public static ArrayList<factory> objFactory = new ArrayList<factory>();

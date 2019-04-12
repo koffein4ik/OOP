@@ -1,6 +1,5 @@
 public class Pilot extends AircrewMember {
     public String experience;
-    public Boolean isCaptain;
     public String lastFlightDate;
     public String masteredAircrafts;
     public int flightHours;
@@ -11,14 +10,6 @@ public class Pilot extends AircrewMember {
 
     public void setExperience(String experience) {
         this.experience = experience;
-    }
-
-    public Boolean getCaptain() {
-        return isCaptain;
-    }
-
-    public void setCaptain(Boolean captain) {
-        isCaptain = captain;
     }
 
     public String getLastFlightDate() {

@@ -6,7 +6,6 @@ public class Airport {
     public int passengersPerYear;
     public String iataCode;
     public String timeZone;
-    public ArrayList<Object> airlines = new ArrayList<>();
     public ArrayList<Object> planes = new ArrayList<>();
     public ArrayList<Object> employees = new ArrayList<>();
 
@@ -50,19 +49,6 @@ public class Airport {
     public void setLocation(String loc)
     {
         this.location = loc;
-    }
-
-    public ArrayList<Object> getAirlines() {
-        return this.airlines;
-    }
-
-    public void setAirlines(ArrayList<Object> setAirlines)
-    {
-        this.airlines.clear();
-        for (int i = 0; i < setAirlines.size(); i++)
-        {
-            this.airlines.add(setAirlines.get(i));
-        }
     }
 
     public ArrayList<Object> getPlanes() {

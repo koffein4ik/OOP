@@ -1,15 +1,15 @@
 public class Employee extends Human {
-    public String CardId;
+    public String cardId;
     public int salary;
     public String position;
     public Airport airport;
 
     public String getCardId() {
-        return CardId;
+        return cardId;
     }
 
     public void setCardId(String cardId) {
-        CardId = cardId;
+        this.cardId = cardId;
     }
 
     public int getSalary() {

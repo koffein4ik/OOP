@@ -7,6 +7,7 @@ import javafx.scene.control.ListView;
 import javafx.scene.layout.Pane;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 
 import javax.swing.*;
 import java.lang.reflect.Array;
@@ -95,8 +96,9 @@ public class ListEditor extends Application {
         addBtn.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
+                if (availableElements.getSelectionModel().getSelectedIndex() == (-1)) return;
                 int addIndex = availableElements.getSelectionModel().getSelectedIndex();
-                add(addIndex, tempObjects, availableObjects, addedElements, availableElements);
+                edit(addIndex, tempObjects, availableObjects, addedElements, availableElements);
             }
         });
         addBtn.setLayoutX(60);
@@ -106,8 +108,9 @@ public class ListEditor extends Application {
         delBtn.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
+                if (addedElements.getSelectionModel().getSelectedIndex() == (-1)) return;
                 int delIndex = addedElements.getSelectionModel().getSelectedIndex();
-                delete(delIndex, availableObjects, tempObjects, availableElements, addedElements);
+                edit(delIndex, availableObjects, tempObjects, availableElements, addedElements);
             }
         });
         delBtn.setLayoutX(160);
@@ -117,7 +120,7 @@ public class ListEditor extends Application {
         saveBtn.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                save(index, fieldname, tempObjects);
+                save(index, fieldname, tempObjects, availableObjects);
             }
         });
         saveBtn.setLayoutX(260);
@@ -146,19 +149,36 @@ public class ListEditor extends Application {
         lv2.getItems().remove(index);
     }
 
-    public static void save(int index, String fieldname, ArrayList<Object> addedObjects)
+    public static void edit(int index, ArrayList<Object> destination, ArrayList<Object> source, ListView<String> lv1, ListView<String> lv2)
     {
-        String settername = "set" + fieldname.substring(0, 1).toUpperCase() + fieldname.substring(1);
+        destination.add(source.get(index));
+        lv1.getItems().add(lv2.getSelectionModel().getSelectedItem());
+        source.remove(index);
+        lv2.getItems().remove(index);
+    }
+
+    public static void save(int index, String fieldname, ArrayList<Object> addedObjects, ArrayList<Object> availableObjects)
+    {
         try
         {
+            String settername = "set" + fieldname.substring(0, 1).toUpperCase() + fieldname.substring(1);
             Method m1 = ClassEditor.createdClasses.get(index).getClass().getMethod(settername, ArrayList.class);
             m1.invoke(ClassEditor.createdClasses.get(index), addedObjects);
             String childFieldName = ClassEditor.createdClasses.get(index).getClass().getName();
-            childFieldName = childFieldName.toLowerCase();
+            childFieldName = childFieldName.substring(0, 1).toLowerCase() + childFieldName.substring(1);
             for (int i = 0; i < addedObjects.size(); i++)
             {
                 int childIndex = ClassEditor.createdClasses.indexOf(addedObjects.get(i));
                 FieldEditor.setObjectField(childIndex, index, childFieldName, ClassEditor.createdClasses.get(index));
+            }
+
+            childFieldName = ClassEditor.createdClasses.get(index).getClass().getName();
+            childFieldName = childFieldName.substring(0, 1).toLowerCase() + childFieldName.substring(1);
+            for (int i = 0; i < availableObjects.size(); i++)
+            {
+                int childIndex = ClassEditor.createdClasses.indexOf(availableObjects.get(i));
+                Object obj = null;
+                FieldEditor.setObjectField(childIndex, index, childFieldName, null);
             }
         }
         catch (Exception ex)

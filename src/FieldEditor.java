@@ -1,15 +1,12 @@
 import javafx.application.Application;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
-import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.FlowPane;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.geometry.Insets;
-
-import javax.naming.event.ObjectChangeListener;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -28,6 +25,7 @@ public class FieldEditor extends Application {
     public static void createWindow(int index)
     {
         if (index == -1) return;
+        Stage editorWindow = new Stage();
         ArrayList<Control> controls = new ArrayList<Control>();
         Class<?> cl = ClassEditor.createdClasses.get(index).getClass();
         Field[] fields = cl.getFields();
@@ -38,33 +36,8 @@ public class FieldEditor extends Application {
         elementsFactory.add(new objectFactory());
         for (Field field: fields)
         {
-            //controls.add(editFactory.createLabel(field.getName()));
             controls.add(labelFactory.createLabel(field.getName()));
             String fieldtype = field.getType().toString();
-            /*switch (fieldtype) {
-                case "int":
-                {
-                    controls.add(editFactory.createTextField(true, GetFieldData.getData(index, field.getName())));
-                    break;
-                }
-                case "class java.lang.String":
-                {
-                    controls.add(editFactory.createTextField(false, GetFieldData.getData(index, field.getName())));
-                    break;
-                }
-                case "class java.util.ArrayList":
-                {
-                    controls.add(editFactory.createCB(GetFieldData.getComplexData(index, field.getName())));
-                    Button editBtn = new Button("Edit");
-                    editBtn.setOnAction(event->ListEditor.createWindow(index, field.getName()));
-                    controls.add(editBtn);
-                    break;
-                }
-                default :
-                {
-                    controls.add(editFactory.createLabel(GetFieldData.getObjectName(index, field.getName())));
-                }
-            }*/
             for (int i = 0; i < elementsFactory.size(); i++)
             {
                 if (elementsFactory.get(i).canCreate(fieldtype))
@@ -73,13 +46,18 @@ public class FieldEditor extends Application {
                     if (i == 2)
                     {
                         Button editBtn = new Button("Edit");
-                        editBtn.setOnAction(event->ListEditor.createWindow(index, field.getName()));
+                        //editBtn.setOnAction(event->ListEditor.createWindow(index, field.getName()));
+                        editBtn.setOnAction(new EventHandler<ActionEvent>() {
+                            @Override
+                            public void handle(ActionEvent event) {
+                                ListEditor.createWindow(index, field.getName());
+                            }
+                        });
                         controls.add(editBtn);
                     }
                     break;
                 }
             }
-            //controls.add(editFactory.createSeparator());
             controls.add(sepFactory.createSeparator());
         }
         Button btnOK = new Button("OK");
@@ -95,15 +73,21 @@ public class FieldEditor extends Application {
                         setStringField(index, lb1.getText(), tf1.getText());
                     }
                 }
+                ClassEditor.update();
             }
         });
         btnOK.setPrefWidth(100);
         FlowPane pane = new FlowPane();
         pane.setHgap(20);
-        Scene scene = new Scene(pane, 360, 500);
-        Stage editorWindow = new Stage();
         pane.getChildren().addAll(controls);
-        pane.getChildren().add(btnOK);
+        pane.getChildren().addAll(btnOK);
+        pane.setMargin(btnOK, new Insets(20,130,20,130));
+        for (int i = 0; i < controls.size(); i++)
+        {
+            if (controls.get(i).getClass().getTypeName().equals("javafx.scene.control.Label"))
+            pane.setMargin(controls.get(i), new Insets(0, 0, 0, 10));
+        }
+        Scene scene = new Scene(pane, 360, btnOK.getLayoutX() - 100);
         editorWindow.initModality(Modality.APPLICATION_MODAL);
         editorWindow.setResizable(false);
         editorWindow.setScene(scene);
@@ -133,26 +117,13 @@ public class FieldEditor extends Application {
         }
     }
 
-    public static void setIntField(int index, String fieldname, int intToAdd)
-    {
-        String settername = "set" + fieldname.substring(0, 1).toUpperCase() + fieldname.substring(1);
-        try
-        {
-            Method m1 = ClassEditor.createdClasses.get(index).getClass().getMethod(settername, Integer.class);
-            m1.invoke(ClassEditor.createdClasses.get(index), intToAdd);
-        }
-        catch (Exception ex)
-        {
-            System.out.println(ex.toString());
-        }
-    }
-
     public static void setObjectField(int index, int parentindex, String fieldname, Object obj)
     {
         String settername = "set" + fieldname.substring(0, 1).toUpperCase() + fieldname.substring(1);
         try
         {
-            Method m1 = ClassEditor.createdClasses.get(index).getClass().getMethod(settername, obj.getClass());
+            Field fd = ClassEditor.createdClasses.get(index).getClass().getField(fieldname);
+            Method m1 = ClassEditor.createdClasses.get(index).getClass().getMethod(settername, fd.getType());
             m1.invoke(ClassEditor.createdClasses.get(index), obj);
         }
         catch (Exception ex)

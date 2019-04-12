@@ -1,6 +1,8 @@
 import javafx.application.Application;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
@@ -46,8 +48,25 @@ public class CreateClass extends Application {
         okButton.setLayoutX(50);
         okButton.setLayoutY(30);
         ComboBox cbClassNames = new ComboBox<String>(availableClasses);
-        okButton.setOnAction(event -> {ClassEditor.createdClasses.add(ClassEditor.objFactory.get(cbClassNames.getSelectionModel().getSelectedIndex()).create()); ClassEditor.update(tf1.getText());});
-        System.out.println(cbClassNames.getVisibleRowCount());
+        okButton.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                if (cbClassNames.getSelectionModel().getSelectedIndex() == (-1)) return;
+                ClassEditor.createdClasses.add(ClassEditor.objFactory.get(cbClassNames.getSelectionModel().getSelectedIndex()).create());
+                int currIndex = ClassEditor.createdClasses.size() - 1;
+                try {
+                    Method m = ClassEditor.createdClasses.get(currIndex).getClass().getMethod("setName", String.class);
+                    m.invoke(ClassEditor.createdClasses.get(currIndex), tf1.getText());
+                    ClassEditor.update();
+                }
+                catch (Exception ex)
+                {
+                    System.out.println(ex.toString());
+                }
+            }
+        });
+        //okButton.setOnAction(event -> {ClassEditor.createdClasses.add(ClassEditor.objFactory.get(cbClassNames.getSelectionModel().getSelectedIndex()).create()); ClassEditor.update(tf1.getText());});
+        //System.out.println(cbClassNames.getVisibleRowCount());
         Stage creatorWindow = new Stage();
         creatorWindow.initModality(Modality.APPLICATION_MODAL);
         Pane pane = new Pane();

@@ -42,7 +42,7 @@ public class Passenger extends Human {
         return passengerPlane;
     }
 
-    public void setPassengerplane(PassengerPlane passengerPlane) {
+    public void setPassengerPlane(PassengerPlane passengerPlane) {
         this.passengerPlane = passengerPlane;
     }
 }
