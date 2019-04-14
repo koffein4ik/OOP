@@ -10,10 +10,8 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.Pane;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-import java.lang.reflect.Method;
 
-import java.lang.reflect.Field;
-import java.util.ArrayList;
+import java.lang.reflect.Method;
 
 public class CreateClass extends Application {
 

@@ -4,11 +4,12 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
-import javafx.scene.layout.Pane;
-import javafx.stage.Stage;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ListView;
+import javafx.scene.layout.Pane;
+import javafx.stage.Stage;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -19,12 +20,17 @@ public class ClassEditor extends Application {
         launch(args);
     }
 
+    public static ObservableList<String> objectsList = FXCollections.observableArrayList();
+    public static ArrayList<factory> objFactory = new ArrayList<factory>();
+    public static ArrayList<Object> createdClasses = new ArrayList<Object>();
+
     @Override
     public void start(Stage primaryStage) {
         Pane root = new Pane();
         root.setPadding(new Insets(10));
+        Button btn4 = new Button();
+        ListView<String> createdClassesView = new ListView<>(objectsList);
 
-        ListView<String> createdClassesView = new ListView<>(list123);
         createdClassesView.setLayoutX(20);
         createdClassesView.setLayoutY(20);
         createdClassesView.setPrefWidth(300);
@@ -47,6 +53,9 @@ public class ClassEditor extends Application {
         btn1.setPrefWidth(80);
         btn1.setLayoutX(20);
         btn1.setLayoutY(430);
+        ArrayList<String>primitiveTypes = new ArrayList<>();
+        primitiveTypes.add("int");
+        primitiveTypes.add("class java.lang.String");
         Button btn2 = new Button("Delete");
         btn2.setOnAction(new EventHandler<ActionEvent>() {
             @Override
@@ -54,13 +63,16 @@ public class ClassEditor extends Application {
                 if (createdClassesView.getSelectionModel().getSelectedIndex() == (-1)) return;
                 createdClasses.remove(createdClassesView.getSelectionModel().getSelectedIndex());
 
-                list123.remove(createdClassesView.getSelectionModel().getSelectedIndex());
+                objectsList.remove(createdClassesView.getSelectionModel().getSelectedIndex());
                 for(int i = 0; i < createdClasses.size(); i++)
                 {
                     Class<?> cl = ClassEditor.createdClasses.get(i).getClass();
                     Field[] fields = cl.getFields();
                     for (Field field: fields)
                     {
+                        Class<?> type = field.getType();
+//                        Class<?> arrayListClass = ArrayList.class;
+                        //type.equals(ArrayList.class)
                         String fieldtype = field.getType().toString();
                         switch (fieldtype) {
                             case "class java.util.ArrayList":
@@ -76,13 +88,14 @@ public class ClassEditor extends Application {
                             }
                             default :
                             {
+                                if(primitiveTypes.contains(fieldtype)) break;
                                 Object obj = GetFieldData.getObject(i, field.getName());
                                 if (isObjectDeleted(obj))
                                 {
                                     try
                                     {
-                                        String settername = "set" + field.getName().substring(0, 1).toUpperCase() + field.getName().substring(1);
-                                        Method m1 = createdClasses.get(i).getClass().getMethod(settername,obj.getClass());
+                                        String setterName = "set" + field.getName().substring(0, 1).toUpperCase() + field.getName().substring(1);
+                                        Method m1 = createdClasses.get(i).getClass().getMethod(setterName, field.getType());
                                         obj = null;
                                         m1.invoke(createdClasses.get(i), obj);
                                     }
@@ -114,33 +127,23 @@ public class ClassEditor extends Application {
         primaryStage.show();
     }
 
-    public static void update()
+    static void update()
     {
-        list123.clear();
-        for (int i = 0; i < createdClasses.size(); i++)
-        {
-            try
-            {
-                Method m1 = createdClasses.get(i).getClass().getMethod("getName");
-                String name = m1.invoke(createdClasses.get(i)).toString();
-                list123.add(createdClasses.get(i).getClass().getName() + " " + name);
-            }
-            catch (Exception ex)
-            {
+        objectsList.clear();
+        for (Object createdClass : createdClasses) {
+            try {
+                Method m1 = createdClass.getClass().getMethod("getName");
+                String name = m1.invoke(createdClass).toString();
+                objectsList.add(createdClass.getClass().getName() + " " + name);
+            } catch (Exception ex) {
                 System.out.println(ex.toString());
             }
         }
     }
-    public static ObservableList<String> list123 = FXCollections.observableArrayList();
-    public static ArrayList<factory> objFactory = new ArrayList<factory>();
-    public static ArrayList<Object> createdClasses = new ArrayList<Object>();
 
-    public static Boolean isObjectDeleted(Object obj)
+    private static Boolean isObjectDeleted(Object obj)
     {
-        if (!createdClasses.contains(obj))
-            return true;
-        else
-            return false;
+        return !(createdClasses.contains(obj));
     }
 
 }

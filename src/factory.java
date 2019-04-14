@@ -1,8 +1,5 @@
 abstract class factory {
-    public Object create()
-    {
-        return new Object();
-    }
+    public abstract Object create();
 }
 
 class humanFactory extends factory

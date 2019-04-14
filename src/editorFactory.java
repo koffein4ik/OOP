@@ -49,10 +49,7 @@ class stringFactory extends editorFactory
 {
     public boolean canCreate(String fieldtype)
     {
-        if (fieldtype.equals("class java.lang.String"))
-            return true;
-        else
-            return false;
+        return fieldtype.equals("class java.lang.String");
     }
 
     public TextField Create(int index, String fieldname)
@@ -69,26 +66,18 @@ class arrayFactory extends editorFactory
 {
     public boolean canCreate(String fieldtype)
     {
-        if (fieldtype.equals("class java.util.ArrayList"))
-            return true;
-        else
-            return false;
+        return fieldtype.equals("class java.util.ArrayList");
     }
 
     public ComboBox<Object> Create(int index, String fieldname)
     {
         ArrayList<Object> obj = GetFieldData.getComplexData(index, fieldname);
         ComboBox<Object> cb1 = new ComboBox<>();
-        for (int i = 0; i < obj.size(); i++)
-        {
-            Class<?> cl = obj.get(i).getClass();
-            try
-            {
-                Method m1 = obj.get(i).getClass().getMethod("getName");
-                cb1.getItems().add(m1.invoke(obj.get(i)));
-            }
-            catch (Exception ex)
-            {
+        for (Object o : obj) {
+            try {
+                Method m1 = o.getClass().getMethod("getName");
+                cb1.getItems().add(m1.invoke(o));
+            } catch (Exception ex) {
                 System.out.println(ex.toString());
             }
         }
@@ -107,14 +96,13 @@ class objectFactory extends editorFactory
     public Label Create(int index, String fieldname)
     {
         String data = GetFieldData.getObjectName(index, fieldname);
-        Label lb1 = labelFactory.createLabel(data);
-        return lb1;
+        return labelFactory.createLabel(data);
     }
 }
 
 class labelFactory
 {
-    public static Label createLabel(String Text)
+    static Label createLabel(String Text)
     {
         Label label1 = new Label(Text);
         label1.setMinHeight(30);
@@ -125,7 +113,7 @@ class labelFactory
 
 class sepFactory
 {
-    public static Separator createSeparator()
+    static Separator createSeparator()
     {
         Separator sep1 = new Separator();
         sep1.setMinWidth(360);
