@@ -1,4 +1,6 @@
-public class SecurityOfficer extends Employee {
+import java.io.Serializable;
+
+public class SecurityOfficer extends Employee implements Serializable {
     String workingHours;
     String location;
     String armed;

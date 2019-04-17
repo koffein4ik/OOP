@@ -1,4 +1,6 @@
-public class AircrewMember extends Employee {
+import java.io.Serializable;
+
+public class AircrewMember extends Employee implements Serializable {
     public String aircraft;
     public String languagesSpoken;
     public String defaultRoute;

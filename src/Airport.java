@@ -1,6 +1,7 @@
+import java.io.Serializable;
 import java.util.ArrayList;
 
-public class Airport {
+public class Airport implements Serializable {
     public String name;
     public String location;
     public int passengersPerYear;

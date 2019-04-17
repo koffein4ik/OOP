@@ -1,4 +1,6 @@
-public class CargoPlane extends Plane {
+import java.io.Serializable;
+
+public class CargoPlane extends Plane implements Serializable {
     public int maxWeight;
     public int volume;
 

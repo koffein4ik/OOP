@@ -1,6 +1,7 @@
+import java.io.Serializable;
 import java.util.ArrayList;
 
-public class PassengerPlane extends Plane {
+public class PassengerPlane extends Plane implements Serializable {
     public int passengerCapacity;
     public ArrayList<Object> passengers = new ArrayList<>();
 

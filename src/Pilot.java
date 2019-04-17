@@ -1,4 +1,6 @@
-public class Pilot extends AircrewMember {
+import java.io.Serializable;
+
+public class Pilot extends AircrewMember implements Serializable {
     public String experience;
     public String lastFlightDate;
     public String masteredAircrafts;

@@ -1,4 +1,6 @@
-public class Plane {
+import java.io.Serializable;
+
+public class Plane implements Serializable {
     public String name;
     public String model;
     public String regNumber;

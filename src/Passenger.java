@@ -1,4 +1,6 @@
-public class Passenger extends Human {
+import java.io.Serializable;
+
+public class Passenger extends Human implements Serializable {
     public String departurePoint;
     public String arrivalPoint;
     public String ticketNumber;

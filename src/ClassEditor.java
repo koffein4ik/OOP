@@ -5,8 +5,7 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.ListView;
+import javafx.scene.control.*;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 
@@ -28,11 +27,10 @@ public class ClassEditor extends Application {
     public void start(Stage primaryStage) {
         Pane root = new Pane();
         root.setPadding(new Insets(10));
-        Button btn4 = new Button();
         ListView<String> createdClassesView = new ListView<>(objectsList);
 
         createdClassesView.setLayoutX(20);
-        createdClassesView.setLayoutY(20);
+        createdClassesView.setLayoutY(40);
         createdClassesView.setPrefWidth(300);
 
         objFactory.add(new humanFactory());
@@ -52,7 +50,7 @@ public class ClassEditor extends Application {
         btn1.setOnAction(event->CreateClass.createWindow());
         btn1.setPrefWidth(80);
         btn1.setLayoutX(20);
-        btn1.setLayoutY(430);
+        btn1.setLayoutY(450);
         ArrayList<String>primitiveTypes = new ArrayList<>();
         primitiveTypes.add("int");
         primitiveTypes.add("class java.lang.String");
@@ -112,17 +110,24 @@ public class ClassEditor extends Application {
         });
         btn2.setPrefWidth(80);
         btn2.setLayoutX(130);
-        btn2.setLayoutY(430);
+        btn2.setLayoutY(450);
         Button btn3 = new Button("Edit");
         btn3.setOnAction(event -> FieldEditor.createWindow(createdClassesView.getSelectionModel().getSelectedIndex()));
         btn3.setPrefWidth(80);
-        btn3.setLayoutY(430);
+        btn3.setLayoutY(450);
         btn3.setLayoutX(240);
-        root.getChildren().addAll(createdClassesView, btn1, btn2, btn3);
+        MenuBar menuBar = new MenuBar();
+        Menu fileMenu = new Menu("File");
+        MenuItem openBtn = new MenuItem("Open");
+        MenuItem saveBtn = new MenuItem("Save");
+        fileMenu.getItems().addAll(openBtn, saveBtn);
+        menuBar.getMenus().add(fileMenu);
+        menuBar.setPrefWidth(350);
+        root.getChildren().addAll(createdClassesView, btn1, btn2, btn3, menuBar);
         Scene scene = new Scene(root, 350, 150);
         primaryStage.setScene(scene);
         primaryStage.setWidth(350);
-        primaryStage.setHeight(500);
+        primaryStage.setHeight(550);
         primaryStage.setResizable(false);
         primaryStage.show();
     }
