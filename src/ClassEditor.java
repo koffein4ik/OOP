@@ -7,8 +7,10 @@ import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.Pane;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
+import java.io.File;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -28,11 +30,9 @@ public class ClassEditor extends Application {
         Pane root = new Pane();
         root.setPadding(new Insets(10));
         ListView<String> createdClassesView = new ListView<>(objectsList);
-
         createdClassesView.setLayoutX(20);
         createdClassesView.setLayoutY(40);
         createdClassesView.setPrefWidth(300);
-
         objFactory.add(new humanFactory());
         objFactory.add(new employeeFactory());
         objFactory.add(new aircrewMFactory());
@@ -43,7 +43,6 @@ public class ClassEditor extends Application {
         objFactory.add(new cargoPlaneFactory());
         objFactory.add(new passengerPlaneFactory());
         objFactory.add(new airportFactory());
-
         primaryStage.setTitle("Class Editor");
         primaryStage.centerOnScreen();
         Button btn1 = new Button("Add");
@@ -108,6 +107,7 @@ public class ClassEditor extends Application {
                 }
             }
         });
+
         btn2.setPrefWidth(80);
         btn2.setLayoutX(130);
         btn2.setLayoutY(450);
@@ -124,6 +124,37 @@ public class ClassEditor extends Application {
         menuBar.getMenus().add(fileMenu);
         menuBar.setPrefWidth(350);
         root.getChildren().addAll(createdClassesView, btn1, btn2, btn3, menuBar);
+        FileChooser fChooser = new FileChooser();
+        openBtn.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+
+                fChooser.setTitle("Select directory to open file");
+                File openedFile = fChooser.showOpenDialog(primaryStage);
+                if (openedFile != null)
+                {
+                    System.out.println(openedFile.getAbsolutePath());
+                    BinarySerializer binSer = new BinarySerializer();
+                    binSer.deserialize(openedFile);
+                    ClassEditor.update();
+                }
+            }
+        });
+        saveBtn.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                fChooser.setTitle("Select directory to save result");
+                File saveFile = fChooser.showSaveDialog(primaryStage);
+                if (saveFile != null)
+                {
+                    System.out.println(saveFile.getAbsolutePath());
+                    BinarySerializer binSer = new BinarySerializer();
+                    //binSer.serialize(saveFile);
+                    GsonSerializer gsSer = new GsonSerializer();
+                    gsSer.serialize(saveFile);
+                }
+            }
+        });
         Scene scene = new Scene(root, 350, 150);
         primaryStage.setScene(scene);
         primaryStage.setWidth(350);
