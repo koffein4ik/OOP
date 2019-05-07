@@ -2,6 +2,7 @@ import com.google.gson.Gson;
 import java.io.*;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 
@@ -56,7 +57,7 @@ class BinarySerializer extends SerializeFactory{
     }
 }
 
-class GsonSerializer {
+class GsonSerializer extends SerializeFactory {
     public void serialize(File fileToSave)
     {
         try
@@ -81,7 +82,7 @@ class GsonSerializer {
             System.out.println(ex.toString());
         }
     }
-    public void deSerialize (File fileToOpen)
+    public void deserialize (File fileToOpen)
     {
         try
         {
@@ -125,5 +126,93 @@ class GsonSerializer {
         {
             System.out.println(ex.toString());
         }
+    }
+}
+
+class koffSerializer extends SerializeFactory
+{
+    public void serialize(File fileToSave)
+    {
+        try
+        {
+            fileToSave.createNewFile();
+            FileOutputStream fOut = new FileOutputStream(fileToSave.getAbsolutePath(), false);
+            ArrayList<Object> objectsToSerialize = new ArrayList<>();
+            objectsToSerialize = ClassEditor.getObjectsToSerialize();
+            for (int i = 0; i < objectsToSerialize.size(); i++)
+            {
+                String serializedObject = serializeObject(objectsToSerialize.get(i), false);
+                System.out.println(serializedObject);
+                fOut.write(serializedObject.getBytes());
+            }
+            fOut.close();
+        }
+        catch (Exception ex)
+        {
+            System.out.println(ex.toString());
+        }
+    }
+
+    public void deserialize(File fileToOpen)
+    {
+
+    }
+
+    public String serializeObject(Object obj, Boolean isInArrayList)
+    {
+        String result = "";
+        if (isInArrayList) result += "  ";
+        result += obj.getClass().toString().replace("class ", "") + "\n";
+        if (isInArrayList) result += "  ";
+        result += "{\n";
+        Field[] fields = obj.getClass().getFields();
+        for (Field field : fields)
+        {
+            if (Modifier.isTransient(field.getModifiers())) continue;
+            String methodName = "";
+            try
+            {
+                methodName = "get" + field.getName().substring(0, 1).toUpperCase() + field.getName().substring(1);
+                Method m1 = obj.getClass().getMethod(methodName);
+                if (field.getType() != ArrayList.class)
+                {
+                    String value = "";
+                    if (!(field.get(obj) == null))
+                    {
+                        value = m1.invoke(obj).toString();
+                    }
+
+                    if (value == null) value = "";
+                    if (isInArrayList) result += "  ";
+                    result += " " + field.getName() + " : " + value + ";\n";
+                    System.out.println(field);
+                    continue;
+                }
+                if (field.getType() == ArrayList.class)
+                {
+                    ArrayList<Object> arrayListToSerialize = new ArrayList<>();
+                    arrayListToSerialize = (ArrayList<Object>)m1.invoke(obj);
+                    result += " " + field.getName() + "\n [\n";
+                    for (int i = 0; i < arrayListToSerialize.size(); i++)
+                    {
+                        result += serializeObject(arrayListToSerialize.get(i), true);
+                    }
+                    result += " ]\n";
+                }
+            }
+            catch (Exception ex)
+            {
+                System.out.println(ex.toString());
+            }
+        }
+        if (isInArrayList) result += "  ";
+        result += "}\n";
+        return result;
+    }
+
+    public Object dserializeObject(Object String)
+    {
+        Object resultObj = new Object();//ИЗМЕНИТЬ
+        return resultObj;
     }
 }

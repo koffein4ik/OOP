@@ -143,7 +143,7 @@ public class ClassEditor extends Application {
                     //BinarySerializer binSer = new BinarySerializer();
                     //binSer.deserialize(openedFile);
                     GsonSerializer gsSer = new GsonSerializer();
-                    gsSer.deSerialize(openedFile);
+                    gsSer.deserialize(openedFile);
                     ClassEditor.update();
                 }
             }
@@ -160,21 +160,8 @@ public class ClassEditor extends Application {
                     //binSer.serialize(saveFile);
                     GsonSerializer gsSer = new GsonSerializer();
                     gsSer.serialize(saveFile);
-//                    Plane pl1 = new Plane();
-//                    Airport airp = new Airport();
-//                    //pl1.setAirport(airp);
-//                    Gson gs1 = new Gson();
-//                    ArrayList<Object> ar1 = new ArrayList<>();
-//                    ar1.add(pl1);
-//                    airp.setPlanes(ar1);
-//                    pl1.setAirport(airp);
-//                    airp.setName("Heathrow");
-//                    String result = gs1.toJson(airp);
-//                    System.out.println(result);
-//                    Airport airp2 = new Airport();
-//                    airp2 = gs1.fromJson(result, Airport.class);
-//                    System.out.println(airp2.name);
-//                    System.out.println(gs1.toJson(airp2));
+                    koffSerializer koffSer = new koffSerializer();
+                    koffSer.serialize(saveFile);
                 }
             }
         });
