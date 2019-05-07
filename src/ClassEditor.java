@@ -1,3 +1,4 @@
+import com.google.gson.Gson;
 import javafx.application.Application;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -13,7 +14,9 @@ import javafx.stage.Stage;
 import java.io.File;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.List;
 
 public class ClassEditor extends Application {
 
@@ -27,6 +30,9 @@ public class ClassEditor extends Application {
 
     @Override
     public void start(Stage primaryStage) {
+        Airport airp1 = new Airport();
+        Airport airp2 = new Airport();
+        System.out.println(airp1.equals(airp2));
         Pane root = new Pane();
         root.setPadding(new Insets(10));
         ListView<String> createdClassesView = new ListView<>(objectsList);
@@ -134,8 +140,10 @@ public class ClassEditor extends Application {
                 if (openedFile != null)
                 {
                     System.out.println(openedFile.getAbsolutePath());
-                    BinarySerializer binSer = new BinarySerializer();
-                    binSer.deserialize(openedFile);
+                    //BinarySerializer binSer = new BinarySerializer();
+                    //binSer.deserialize(openedFile);
+                    GsonSerializer gsSer = new GsonSerializer();
+                    gsSer.deSerialize(openedFile);
                     ClassEditor.update();
                 }
             }
@@ -152,6 +160,21 @@ public class ClassEditor extends Application {
                     //binSer.serialize(saveFile);
                     GsonSerializer gsSer = new GsonSerializer();
                     gsSer.serialize(saveFile);
+//                    Plane pl1 = new Plane();
+//                    Airport airp = new Airport();
+//                    //pl1.setAirport(airp);
+//                    Gson gs1 = new Gson();
+//                    ArrayList<Object> ar1 = new ArrayList<>();
+//                    ar1.add(pl1);
+//                    airp.setPlanes(ar1);
+//                    pl1.setAirport(airp);
+//                    airp.setName("Heathrow");
+//                    String result = gs1.toJson(airp);
+//                    System.out.println(result);
+//                    Airport airp2 = new Airport();
+//                    airp2 = gs1.fromJson(result, Airport.class);
+//                    System.out.println(airp2.name);
+//                    System.out.println(gs1.toJson(airp2));
                 }
             }
         });
@@ -180,6 +203,72 @@ public class ClassEditor extends Application {
     private static Boolean isObjectDeleted(Object obj)
     {
         return !(createdClasses.contains(obj));
+    }
+
+    public static ArrayList<Object> getObjectsToSerialize()
+    {
+        ArrayList<Object> result = new ArrayList<>();
+        for (int i = 0; i < createdClasses.size(); i++)
+        {
+            result.add(createdClasses.get(i));
+        }
+        for (int i = 0; i < result.size(); i++)
+        {
+            Field[] fields = result.get(i).getClass().getFields();
+            Type arrList = ArrayList.class;
+            for (Field field : fields)
+            {
+                if (field.getType() == arrList)
+                {
+                    System.out.println("yes");
+                    ArrayList<Object> temp = new ArrayList<>();
+                    String mehtodName;
+                    mehtodName = "get" + field.getName().substring(0, 1).toUpperCase() + field.getName().substring(1);
+                    try
+                    {
+                        Method m1 = result.get(i).getClass().getMethod(mehtodName);
+                        temp = (ArrayList<Object>) m1.invoke(result.get(i));
+                        for (int k = 0; k < temp.size(); k++)
+                        {
+                            Object obj = temp.get(k);
+                            for (int j = 0; j < result.size(); j++)
+                            {
+                                if (obj.equals(result.get(j)))
+                                {
+                                    System.out.println("Equals");
+                                    result.remove(j);
+                                }
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        System.out.println(ex.toString());
+                    }
+                }
+            }
+        }
+        return result;
+    }
+
+    public static void deserializeObjects(ArrayList<Object> list, Object parentObj)
+    {
+        for (int i = 0; i < list.size(); i++)
+        {
+            createdClasses.add(list.get(i));
+            Object obj = list.get(i);
+            String methodName = "";
+            try
+            {
+                methodName = "set" + parentObj.getClass().getName().substring(0, 1).toUpperCase() + parentObj.getClass().getName().substring(1);
+                Method m1 = obj.getClass().getMethod(methodName, parentObj.getClass());
+                m1.invoke(obj, parentObj);
+            }
+            catch (Exception ex)
+            {
+                System.out.println(ex.toString());
+            }
+        }
     }
 
 }

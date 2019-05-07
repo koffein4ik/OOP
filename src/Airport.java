@@ -7,8 +7,8 @@ public class Airport implements Serializable {
     public int passengersPerYear;
     public String iataCode;
     public String timeZone;
-    public ArrayList<Object> planes = new ArrayList<>();
-    public ArrayList<Object> employees = new ArrayList<>();
+    public ArrayList<Plane> planes = new ArrayList<>();
+    public ArrayList<Employee> employees = new ArrayList<>();
 
     public void setPassengersPerYear(int passengersPerYear) {
         this.passengersPerYear = passengersPerYear;
@@ -52,7 +52,7 @@ public class Airport implements Serializable {
         this.location = loc;
     }
 
-    public ArrayList<Object> getPlanes() {
+    public ArrayList<Plane> getPlanes() {
         return this.planes;
     }
 
@@ -61,11 +61,11 @@ public class Airport implements Serializable {
         this.planes.clear();
         for (int i = 0; i < setPlanes.size(); i++)
         {
-            this.planes.add(setPlanes.get(i));
+            this.planes.add((Plane)setPlanes.get(i));
         }
     }
 
-    public ArrayList<Object> getEmployees() {
+    public ArrayList<Employee> getEmployees() {
         return this.employees;
     }
 
@@ -74,7 +74,7 @@ public class Airport implements Serializable {
         this.employees.clear();
         for (int i = 0; i < setEmployees.size(); i++)
         {
-            this.employees.add(setEmployees.get(i));
+            this.employees.add((Employee)setEmployees.get(i));
         }
     }
 }

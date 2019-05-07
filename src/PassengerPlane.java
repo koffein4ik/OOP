@@ -3,7 +3,7 @@ import java.util.ArrayList;
 
 public class PassengerPlane extends Plane implements Serializable {
     public int passengerCapacity;
-    public ArrayList<Object> passengers = new ArrayList<>();
+    public ArrayList<Passenger> passengers = new ArrayList<>();
 
     public int getPassengerCapacity() {
         return passengerCapacity;
@@ -13,7 +13,7 @@ public class PassengerPlane extends Plane implements Serializable {
         this.passengerCapacity = passengerCapacity;
     }
 
-    public ArrayList<Object> getPassengers() {
+    public ArrayList<Passenger> getPassengers() {
         return passengers;
     }
 
@@ -22,7 +22,7 @@ public class PassengerPlane extends Plane implements Serializable {
         this.passengers.clear();
         for (int i = 0; i < setPassengers.size(); i++)
         {
-            this.passengers.add(setPassengers.get(i));
+            this.passengers.add((Passenger)setPassengers.get(i));
         }
     }
 }

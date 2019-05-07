@@ -6,7 +6,7 @@ public class Passenger extends Human implements Serializable {
     public String ticketNumber;
     public String departureTime;
 
-    public PassengerPlane passengerPlane;
+    transient public PassengerPlane passengerPlane;
 
     public String getDeparturePoint() {
         return departurePoint;

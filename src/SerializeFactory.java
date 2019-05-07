@@ -1,9 +1,9 @@
 import com.google.gson.Gson;
-import com.google.gson.stream.JsonWriter;
-
 import java.io.*;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.lang.reflect.Type;
-import java.util.Scanner;
+import java.util.ArrayList;
 
 abstract class SerializeFactory {
     abstract void serialize(File fileToSave);
@@ -63,16 +63,18 @@ class GsonSerializer {
         {
             fileToSave.createNewFile();
             FileOutputStream fOut = new FileOutputStream(fileToSave.getAbsolutePath(), false);
-            //ObjectOutputStream out = new ObjectOutputStream(fOut);
-            for (int i = 0; i < ClassEditor.createdClasses.size(); i++)
+            ArrayList<Object> objToSerialize = ClassEditor.getObjectsToSerialize();
+            for (int i = 0; i < objToSerialize.size(); i++)
             {
+                String typeName = objToSerialize.get(i).getClass().getTypeName() + "\n";
+                fOut.write(typeName.getBytes());
                 Gson gsObject = new Gson();
                 System.out.println(fileToSave.getAbsolutePath());
-                Type objType = ClassEditor.createdClasses.get(i).getClass();
-                String result = gsObject.toJson(ClassEditor.createdClasses.get(i), objType);
+                Type objType = objToSerialize.get(i).getClass();
+                String result = gsObject.toJson(objToSerialize.get(i), objType) + "\n";
                 fOut.write(result.getBytes());
             }
-            //fOut.close();
+            fOut.close();
         }
         catch (Exception ex)
         {
@@ -81,6 +83,47 @@ class GsonSerializer {
     }
     public void deSerialize (File fileToOpen)
     {
-
+        try
+        {
+            FileInputStream fIn = new FileInputStream(fileToOpen.getAbsolutePath());
+            BufferedReader bufIn = new BufferedReader(new InputStreamReader(fIn));
+            Gson gsObject = new Gson();
+            Object obj;
+            String line = bufIn.readLine();
+            while (line != null)
+            {
+                Class<?> cl = Class.forName(line);
+                line = bufIn.readLine();
+                obj = gsObject.fromJson(line, cl);
+                //Class<?> cl = ClassEditor.createdClasses.get(index).getClass();
+                Field[] fields = cl.getFields();
+                Type arrList = ArrayList.class;
+                ClassEditor.createdClasses.add(obj);
+                for (Field field : fields)
+                {
+                    if (field.getType() == arrList)
+                    {
+                        System.out.println("yes");
+                        ArrayList<Object> temp = new ArrayList<>();
+                        String mehtodName;
+                        mehtodName = "get" + field.getName().substring(0, 1).toUpperCase() + field.getName().substring(1);
+                        try {
+                            Method m1 = cl.getMethod(mehtodName);
+                            temp = (ArrayList<Object>) m1.invoke(obj);
+                            ClassEditor.deserializeObjects(temp, obj);
+                        }
+                        catch (Exception ex)
+                        {
+                            System.out.println(ex.toString());
+                        }
+                    }
+                }
+                line = bufIn.readLine();
+            }
+        }
+        catch (Exception ex)
+        {
+            System.out.println(ex.toString());
+        }
     }
 }

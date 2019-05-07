@@ -9,7 +9,7 @@ public class Plane implements Serializable {
     public int maxHeight;
     public int fuelCapacity;
     public int crewMembers;
-    public Airport airport;
+    transient public Airport airport;
 
     public String getModel() {
         return model;
