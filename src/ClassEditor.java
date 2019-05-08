@@ -143,7 +143,9 @@ public class ClassEditor extends Application {
                     //BinarySerializer binSer = new BinarySerializer();
                     //binSer.deserialize(openedFile);
                     GsonSerializer gsSer = new GsonSerializer();
-                    gsSer.deserialize(openedFile);
+                    //gsSer.deserialize(openedFile);
+                    koffSerializer koffSer = new koffSerializer();
+                    koffSer.deserialize(openedFile);
                     ClassEditor.update();
                 }
             }

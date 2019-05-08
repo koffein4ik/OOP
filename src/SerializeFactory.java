@@ -155,7 +155,23 @@ class koffSerializer extends SerializeFactory
 
     public void deserialize(File fileToOpen)
     {
-
+        try
+        {
+            FileInputStream fIn = new FileInputStream(fileToOpen.getAbsolutePath());
+            BufferedReader bufIn = new BufferedReader(new InputStreamReader(fIn));
+            String line = bufIn.readLine();
+            ArrayList<Object> objToAdd = new ArrayList<>();
+            while (line != null)
+            {
+                //objToAdd.add(deserializeObject(bufIn, line));
+                ClassEditor.createdClasses.add(deserializeObject(bufIn, line));
+                line = bufIn.readLine();
+            }
+        }
+        catch (Exception ex)
+        {
+            System.out.println(ex.toString());
+        }
     }
 
     public String serializeObject(Object obj, Boolean isInArrayList)
@@ -181,7 +197,6 @@ class koffSerializer extends SerializeFactory
                     {
                         value = m1.invoke(obj).toString();
                     }
-
                     if (value == null) value = "";
                     if (isInArrayList) result += "  ";
                     result += " " + field.getName() + " : " + value + ";\n";
@@ -210,9 +225,70 @@ class koffSerializer extends SerializeFactory
         return result;
     }
 
-    public Object dserializeObject(Object String)
+    public Object deserializeObject(BufferedReader bufIn, String className)
     {
-        Object resultObj = new Object();//ИЗМЕНИТЬ
-        return resultObj;
+        String line = "";
+        try {
+            Class<?> cl = Class.forName(className);
+            bufIn.readLine();
+            Object obj = cl.newInstance();
+            Field[] fields = cl.getFields();
+            for (Field field : fields)
+            {
+                if (Modifier.isTransient(field.getModifiers())) continue;
+                line = bufIn.readLine();
+                line = line.substring(line.indexOf(":") + 2, line.length() - 1);
+                String settername = "set" + field.getName().substring(0, 1).toUpperCase() + field.getName().substring(1);
+                Method m1 = cl.getMethod(settername, field.getType());
+                if (!(field.getType() == ArrayList.class))
+                {
+                    if (field.getType() == Integer.TYPE)
+                    {
+                        m1.invoke(obj, Integer.parseInt(line));
+                    }
+                    if (field.getType() == String.class)
+                    {
+                        m1.invoke(obj, line);
+                    }
+                }
+                else
+                {
+                   ArrayList<Object> temp = deserializeArrayList(bufIn);
+                   ClassEditor.deserializeObjects(temp, obj);
+                   m1.invoke(obj, temp);
+                }
+            }
+            line = bufIn.readLine();
+            //System.out.println(line);
+            return obj;
+        }
+        catch (Exception ex)
+        {
+            System.out.println(ex.toString());
+        }
+        //Object resultObj = new Object();//ИЗМЕНИТЬ
+        return null;
+    }
+
+    public ArrayList<Object> deserializeArrayList(BufferedReader bufIn)
+    {
+        ArrayList<Object> result = new ArrayList<>();
+        try
+        {
+            bufIn.readLine();
+            //bufIn.readLine();
+            String line = bufIn.readLine();
+            while (!(line.trim().equals("]")))
+            {
+                Object obj = deserializeObject(bufIn, line.trim());
+                result.add(obj);
+                line = bufIn.readLine();
+            }
+        }
+        catch (Exception ex)
+        {
+            System.out.println(ex.toString());
+        }
+        return result;
     }
 }
