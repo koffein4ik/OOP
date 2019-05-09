@@ -76,9 +76,6 @@ public class ClassEditor extends Application {
                     Field[] fields = cl.getFields();
                     for (Field field: fields)
                     {
-                        Class<?> type = field.getType();
-//                        Class<?> arrayListClass = ArrayList.class;
-                        //type.equals(ArrayList.class)
                         String fieldtype = field.getType().toString();
                         switch (fieldtype) {
                             case "class java.util.ArrayList":
@@ -169,12 +166,6 @@ public class ClassEditor extends Application {
                         ex.toString();
                     }
                     System.out.println(openedFile.getAbsolutePath());
-                    //BinarySerializer binSer = new BinarySerializer();
-                    //binSer.deserialize(openedFile);
-                    //GsonSerializer gsSer = new GsonSerializer();
-                    //gsSer.deserialize(openedFile);
-                    //koffSerializer koffSer = new koffSerializer();
-                    //koffSer.deserialize(openedFile);
                     ClassEditor.update();
                 }
             }
@@ -189,11 +180,6 @@ public class ClassEditor extends Application {
                     ChooseSerializationType.createWindow(saveFile);
                     System.out.println(saveFile.getAbsolutePath());
                     BinarySerializer binSer = new BinarySerializer();
-                    //binSer.serialize(saveFile);
-                    //GsonSerializer gsSer = new GsonSerializer();
-                    //gsSer.serialize(saveFile);
-                    //koffSerializer koffSer = new koffSerializer();
-                    //koffSer.serialize(saveFile);
                 }
             }
         });
@@ -245,13 +231,6 @@ public class ClassEditor extends Application {
                         for (int k = 0; k < temp.size(); k++) {
                             Object obj = temp.get(k);
                             if (result.contains(obj)) objectsToRemove.add(obj);
-                            /*for (int j = 0; j < result.size(); j++) {
-                                if (obj.equals(result.get(j))) {
-                                    System.out.println("Equals");
-                                    //result.remove(j);
-                                    objectsToRemove.add(result.get(j));
-                                }
-                            }*/
                         }
                     } catch (Exception ex) {
                         System.out.println(ex.toString());
@@ -287,10 +266,6 @@ public class ClassEditor extends Application {
                     {
                         System.out.println(ex.toString());
                     }
-                    /*for (int j = 0; j < temp.size(); j++)
-                    {
-                        createdClasses.add(temp.get(i));
-                    }*/
                     deserializeObjects(temp, obj);
                 }
             }
@@ -301,18 +276,18 @@ public class ClassEditor extends Application {
     {
         for (int i = 0; i < list.size(); i++)
         {
-            createdClasses.add(list.get(i));
-            Object obj = list.get(i);
-            String methodName = "";
-            try
+            if (!createdClasses.contains(list.get(i)))
             {
-                methodName = "set" + parentObj.getClass().getName().substring(0, 1).toUpperCase() + parentObj.getClass().getName().substring(1);
-                Method m1 = obj.getClass().getMethod(methodName, parentObj.getClass());
-                m1.invoke(obj, parentObj);
-            }
-            catch (Exception ex)
-            {
-                System.out.println(ex.toString());
+                createdClasses.add(list.get(i));
+                Object obj = list.get(i);
+                String methodName = "";
+                try {
+                    methodName = "set" + parentObj.getClass().getName().substring(0, 1).toUpperCase() + parentObj.getClass().getName().substring(1);
+                    Method m1 = obj.getClass().getMethod(methodName, parentObj.getClass());
+                    m1.invoke(obj, parentObj);
+                } catch (Exception ex) {
+                    System.out.println(ex.toString());
+                }
             }
         }
     }

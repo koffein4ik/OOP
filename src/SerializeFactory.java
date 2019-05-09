@@ -1,4 +1,7 @@
-import com.google.gson.Gson;
+import com.google.gson.*;
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonWriter;
+
 import java.io.*;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -81,7 +84,16 @@ class GsonSerializer extends SerializeFactory {
             {
                 String typeName = objToSerialize.get(i).getClass().getTypeName() + "\n";
                 fOut.write(typeName.getBytes());
-                Gson gsObject = new Gson();
+                //Gson gsObject = new Gson();
+                Gson gsObject = new GsonBuilder()
+                        .registerTypeAdapter(Plane.class, new PlaneAdapterSerializer())
+                        .registerTypeAdapter(PassengerPlane.class, new PassengerPlaneAdapterSerializer())
+                        .registerTypeAdapter(CargoPlane.class, new CargoPlaneAdapterSerializer())
+                        .registerTypeAdapter(Employee.class, new EmployeeAdapterSerializer())
+                        .registerTypeAdapter(Pilot.class, new PilotAdapterSerializer())
+                        .registerTypeAdapter(SecurityOfficer.class, new SecurityAdapterSerializer())
+                        .registerTypeAdapter(AircrewMember.class, new AirCrewAdapterSerializer())
+                        .create();
                 System.out.println(fileToSave.getAbsolutePath());
                 Type objType = objToSerialize.get(i).getClass();
                 String result = gsObject.toJson(objToSerialize.get(i), objType) + "\n";
@@ -101,7 +113,10 @@ class GsonSerializer extends SerializeFactory {
             FileInputStream fIn = new FileInputStream(fileToOpen.getAbsolutePath());
             BufferedReader bufIn = new BufferedReader(new InputStreamReader(fIn));
             bufIn.readLine();
-            Gson gsObject = new Gson();
+            Gson gsObject = new GsonBuilder()
+                    .registerTypeAdapter(Plane.class, new PlaneAdapterDeSerializer())
+                    .registerTypeAdapter(Employee.class, new EmployeeAdapterDeSerializer())
+                    .create();
             Object obj;
             String line = bufIn.readLine();
             while (line != null)
@@ -109,7 +124,6 @@ class GsonSerializer extends SerializeFactory {
                 Class<?> cl = Class.forName(line);
                 line = bufIn.readLine();
                 obj = gsObject.fromJson(line, cl);
-                //Class<?> cl = ClassEditor.createdClasses.get(index).getClass();
                 Field[] fields = cl.getFields();
                 Type arrList = ArrayList.class;
                 ClassEditor.createdClasses.add(obj);
@@ -139,6 +153,155 @@ class GsonSerializer extends SerializeFactory {
         {
             System.out.println(ex.toString());
         }
+        ClassEditor.restoreConnections();
+    }
+}
+
+class PlaneAdapterSerializer implements JsonSerializer<Plane>
+{
+    @Override
+    public JsonElement serialize (Plane pl1, Type typeOfSrc, JsonSerializationContext JsonContext)
+    {
+        JsonElement result = new Gson().toJsonTree(pl1);
+        result.getAsJsonObject().addProperty("className", typeOfSrc.toString());
+        return result;
+    }
+}
+
+class PassengerPlaneAdapterSerializer implements JsonSerializer<PassengerPlane>
+{
+    @Override
+    public JsonElement serialize (PassengerPlane pl1, Type typeOfSrc, JsonSerializationContext JsonContext)
+    {
+        JsonElement result = new Gson().toJsonTree(pl1);
+        result.getAsJsonObject().addProperty("className", typeOfSrc.toString());
+        return result;
+    }
+}
+
+class EmployeeAdapterSerializer implements JsonSerializer<Employee>
+{
+    @Override
+    public JsonElement serialize (Employee pl1, Type typeOfSrc, JsonSerializationContext JsonContext)
+    {
+        JsonElement result = new Gson().toJsonTree(pl1);
+        result.getAsJsonObject().addProperty("className", typeOfSrc.toString());
+        return result;
+    }
+}
+
+class PilotAdapterSerializer implements JsonSerializer<Pilot>
+{
+    @Override
+    public JsonElement serialize (Pilot pl1, Type typeOfSrc, JsonSerializationContext JsonContext)
+    {
+        JsonElement result = new Gson().toJsonTree(pl1);
+        result.getAsJsonObject().addProperty("className", typeOfSrc.toString());
+        return result;
+    }
+}
+
+class SecurityAdapterSerializer implements JsonSerializer<SecurityOfficer>
+{
+    @Override
+    public JsonElement serialize (SecurityOfficer pl1, Type typeOfSrc, JsonSerializationContext JsonContext)
+    {
+        JsonElement result = new Gson().toJsonTree(pl1);
+        result.getAsJsonObject().addProperty("className", typeOfSrc.toString());
+        return result;
+    }
+}
+
+class AirCrewAdapterSerializer implements JsonSerializer<AircrewMember>
+{
+    @Override
+    public JsonElement serialize (AircrewMember pl1, Type typeOfSrc, JsonSerializationContext JsonContext)
+    {
+        JsonElement result = new Gson().toJsonTree(pl1);
+        result.getAsJsonObject().addProperty("className", typeOfSrc.toString());
+        return result;
+    }
+}
+
+class CargoPlaneAdapterSerializer implements JsonSerializer<CargoPlane>
+{
+    @Override
+    public JsonElement serialize (CargoPlane pl1, Type typeOfSrc, JsonSerializationContext JsonContext)
+    {
+        JsonElement result = new Gson().toJsonTree(pl1);
+        result.getAsJsonObject().addProperty("className", typeOfSrc.toString());
+        return result;
+    }
+}
+
+class PlaneAdapterDeSerializer implements JsonDeserializer<Plane>
+{
+    @Override
+    public Plane deserialize (JsonElement json, Type typeOfT, JsonDeserializationContext context)
+    {
+        String classname = json.getAsJsonObject().get("className").getAsString();
+        classname = classname.substring(6);
+        Plane pl1 = new Plane();
+        Gson gson = new Gson();
+        switch(classname)
+        {
+            case "PassengerPlane" :
+            {
+                pl1 = new PassengerPlane();
+                pl1 = gson.fromJson(json, PassengerPlane.class);
+                break;
+            }
+            case "CargoPlane" :
+            {
+                pl1 = new CargoPlane();
+                pl1 = gson.fromJson(json, CargoPlane.class);
+                break;
+            }
+            default:
+            {
+                pl1 = gson.fromJson(json, Plane.class);
+            }
+        }
+        System.out.println(classname);
+        return pl1;
+    }
+}
+
+class EmployeeAdapterDeSerializer implements JsonDeserializer<Employee>
+{
+    @Override
+    public Employee deserialize (JsonElement json, Type typeOfT, JsonDeserializationContext context)
+    {
+        String classname = json.getAsJsonObject().get("className").getAsString();
+        classname = classname.substring(6);
+        Employee empl1 = new Employee();
+        Gson gson = new Gson();
+        switch(classname)
+        {
+            case "Pilot" :
+            {
+                empl1 = new Pilot();
+                empl1 = gson.fromJson(json, Pilot.class);
+                break;
+            }
+            case "SecurityOfficer" :
+            {
+                empl1 = new SecurityOfficer();
+                empl1 = gson.fromJson(json, SecurityOfficer.class);
+                break;
+            }
+            case "AircrewMember" :
+            {
+                empl1 = new AircrewMember();
+                empl1 = gson.fromJson(json, AircrewMember.class);
+            }
+            default:
+            {
+                empl1 = gson.fromJson(json, Employee.class);
+            }
+        }
+        System.out.println(classname);
+        return empl1;
     }
 }
 
