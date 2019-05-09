@@ -2,7 +2,7 @@ public class Employee extends Human {
     public String cardId;
     public int salary;
     public String position;
-    public Airport airport;
+    public transient Airport airport;
 
     public String getCardId() {
         return cardId;

@@ -17,10 +17,17 @@ class BinarySerializer extends SerializeFactory{
         try
         {
             fileToSave.createNewFile();
+            //FileOutputStream fOut = new FileOutputStream(fileToSave.getAbsolutePath());
+            String serNumber = "0\n";
+           // fOut.write(serNumber.getBytes());
+            //fOut.close();
+            ArrayList<Object> objectsToSerialize = new ArrayList<>();
+            objectsToSerialize = ClassEditor.getObjectsToSerialize();
             ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(fileToSave.getAbsolutePath(), false));
-            for (int i = 0; i < ClassEditor.createdClasses.size(); i++)
+            out.writeBytes(serNumber);
+            for (int i = 0; i < objectsToSerialize.size(); i++)
             {
-                Object obj = ClassEditor.createdClasses.get(i);
+                Object obj = objectsToSerialize.get(i);
                 out.writeObject(obj);
             }
             out.close();
@@ -37,6 +44,8 @@ class BinarySerializer extends SerializeFactory{
         {
             FileInputStream fInput = new FileInputStream(fileToRead.getAbsolutePath());
             ObjectInputStream in = new ObjectInputStream(fInput);
+            System.out.println(in.readByte());
+            System.out.println(in.readByte());
             Object obj = in.readObject();
             ClassEditor.createdClasses.clear();
             while (obj != null)
@@ -48,11 +57,12 @@ class BinarySerializer extends SerializeFactory{
                     break;
             }
             in.close();
+            ClassEditor.restoreConnections();
             ClassEditor.update();
         }
         catch (Exception ex)
         {
-
+            System.out.println(ex.toString());
         }
     }
 }
@@ -64,6 +74,8 @@ class GsonSerializer extends SerializeFactory {
         {
             fileToSave.createNewFile();
             FileOutputStream fOut = new FileOutputStream(fileToSave.getAbsolutePath(), false);
+            String serNumber = "1\n";
+            fOut.write(serNumber.getBytes());
             ArrayList<Object> objToSerialize = ClassEditor.getObjectsToSerialize();
             for (int i = 0; i < objToSerialize.size(); i++)
             {
@@ -88,6 +100,7 @@ class GsonSerializer extends SerializeFactory {
         {
             FileInputStream fIn = new FileInputStream(fileToOpen.getAbsolutePath());
             BufferedReader bufIn = new BufferedReader(new InputStreamReader(fIn));
+            bufIn.readLine();
             Gson gsObject = new Gson();
             Object obj;
             String line = bufIn.readLine();
@@ -137,6 +150,8 @@ class koffSerializer extends SerializeFactory
         {
             fileToSave.createNewFile();
             FileOutputStream fOut = new FileOutputStream(fileToSave.getAbsolutePath(), false);
+            String serNumber = "2\n";
+            fOut.write(serNumber.getBytes());
             ArrayList<Object> objectsToSerialize = new ArrayList<>();
             objectsToSerialize = ClassEditor.getObjectsToSerialize();
             for (int i = 0; i < objectsToSerialize.size(); i++)
@@ -159,6 +174,7 @@ class koffSerializer extends SerializeFactory
         {
             FileInputStream fIn = new FileInputStream(fileToOpen.getAbsolutePath());
             BufferedReader bufIn = new BufferedReader(new InputStreamReader(fIn));
+            bufIn.readLine();
             String line = bufIn.readLine();
             ArrayList<Object> objToAdd = new ArrayList<>();
             while (line != null)

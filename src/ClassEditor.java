@@ -1,4 +1,5 @@
 import com.google.gson.Gson;
+import com.sun.corba.se.impl.ior.OldJIDLObjectKeyTemplate;
 import javafx.application.Application;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -11,12 +12,14 @@ import javafx.scene.layout.Pane;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStreamReader;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
-import java.util.List;
 
 public class ClassEditor extends Application {
 
@@ -139,13 +142,39 @@ public class ClassEditor extends Application {
                 File openedFile = fChooser.showOpenDialog(primaryStage);
                 if (openedFile != null)
                 {
+                    ArrayList<SerializeFactory> serFactory = new ArrayList<>();
+                    serFactory.add(new BinarySerializer());
+                    serFactory.add(new GsonSerializer());
+                    serFactory.add(new koffSerializer());
+                    try
+                    {
+                        FileInputStream fIn = new FileInputStream(openedFile.getAbsolutePath());
+                        BufferedReader bufIn = new BufferedReader(new InputStreamReader(fIn));
+                        String line = bufIn.readLine();
+                        if (line.length() < 3)
+                        {
+                            int serNumber = Integer.parseInt(line);
+                            System.out.println(serNumber);
+                            serFactory.get(serNumber).deserialize(openedFile);
+                        }
+                        else
+                        {
+                            serFactory.get(0).deserialize(openedFile);
+                        }
+                        bufIn.close();
+                        fIn.close();
+                    }
+                    catch (Exception ex)
+                    {
+                        ex.toString();
+                    }
                     System.out.println(openedFile.getAbsolutePath());
                     //BinarySerializer binSer = new BinarySerializer();
                     //binSer.deserialize(openedFile);
-                    GsonSerializer gsSer = new GsonSerializer();
+                    //GsonSerializer gsSer = new GsonSerializer();
                     //gsSer.deserialize(openedFile);
-                    koffSerializer koffSer = new koffSerializer();
-                    koffSer.deserialize(openedFile);
+                    //koffSerializer koffSer = new koffSerializer();
+                    //koffSer.deserialize(openedFile);
                     ClassEditor.update();
                 }
             }
@@ -157,13 +186,14 @@ public class ClassEditor extends Application {
                 File saveFile = fChooser.showSaveDialog(primaryStage);
                 if (saveFile != null)
                 {
+                    ChooseSerializationType.createWindow(saveFile);
                     System.out.println(saveFile.getAbsolutePath());
                     BinarySerializer binSer = new BinarySerializer();
                     //binSer.serialize(saveFile);
-                    GsonSerializer gsSer = new GsonSerializer();
-                    gsSer.serialize(saveFile);
-                    koffSerializer koffSer = new koffSerializer();
-                    koffSer.serialize(saveFile);
+                    //GsonSerializer gsSer = new GsonSerializer();
+                    //gsSer.serialize(saveFile);
+                    //koffSerializer koffSer = new koffSerializer();
+                    //koffSer.serialize(saveFile);
                 }
             }
         });
@@ -194,50 +224,77 @@ public class ClassEditor extends Application {
         return !(createdClasses.contains(obj));
     }
 
-    public static ArrayList<Object> getObjectsToSerialize()
-    {
+    public static ArrayList<Object> getObjectsToSerialize() {
         ArrayList<Object> result = new ArrayList<>();
-        for (int i = 0; i < createdClasses.size(); i++)
-        {
+        ArrayList<Object> objectsToRemove = new ArrayList<>();
+        for (int i = 0; i < createdClasses.size(); i++) {
             result.add(createdClasses.get(i));
         }
-        for (int i = 0; i < result.size(); i++)
-        {
+        for (int i = 0; i < result.size(); i++) {
             Field[] fields = result.get(i).getClass().getFields();
             Type arrList = ArrayList.class;
-            for (Field field : fields)
-            {
-                if (field.getType() == arrList)
-                {
+            for (Field field : fields) {
+                if (field.getType() == arrList) {
                     System.out.println("yes");
                     ArrayList<Object> temp = new ArrayList<>();
                     String mehtodName;
                     mehtodName = "get" + field.getName().substring(0, 1).toUpperCase() + field.getName().substring(1);
-                    try
-                    {
+                    try {
                         Method m1 = result.get(i).getClass().getMethod(mehtodName);
                         temp = (ArrayList<Object>) m1.invoke(result.get(i));
-                        for (int k = 0; k < temp.size(); k++)
-                        {
+                        for (int k = 0; k < temp.size(); k++) {
                             Object obj = temp.get(k);
-                            for (int j = 0; j < result.size(); j++)
-                            {
-                                if (obj.equals(result.get(j)))
-                                {
+                            if (result.contains(obj)) objectsToRemove.add(obj);
+                            /*for (int j = 0; j < result.size(); j++) {
+                                if (obj.equals(result.get(j))) {
                                     System.out.println("Equals");
-                                    result.remove(j);
+                                    //result.remove(j);
+                                    objectsToRemove.add(result.get(j));
                                 }
-                            }
+                            }*/
                         }
-                    }
-                    catch (Exception ex)
-                    {
+                    } catch (Exception ex) {
                         System.out.println(ex.toString());
                     }
                 }
             }
         }
+        for (int i = 0; i < objectsToRemove.size(); i++)
+        {
+            result.remove(objectsToRemove.get(i));
+        }
         return result;
+    }
+
+    public static void restoreConnections()
+    {
+        for (int i = 0; i < createdClasses.size(); i++)
+        {
+            Object obj = createdClasses.get(i);
+            Field[] fields = obj.getClass().getFields();
+            for (Field field : fields)
+            {
+                if (field.getType() == ArrayList.class)
+                {
+                    ArrayList<Object> temp = new ArrayList<>();
+                    String methodName = "get" + field.getName().substring(0, 1).toUpperCase() + field.getName().substring(1);
+                    try
+                    {
+                        Method m1 = obj.getClass().getMethod(methodName);
+                        temp = (ArrayList<Object>)m1.invoke(obj);
+                    }
+                    catch (Exception ex)
+                    {
+                        System.out.println(ex.toString());
+                    }
+                    /*for (int j = 0; j < temp.size(); j++)
+                    {
+                        createdClasses.add(temp.get(i));
+                    }*/
+                    deserializeObjects(temp, obj);
+                }
+            }
+        }
     }
 
     public static void deserializeObjects(ArrayList<Object> list, Object parentObj)
