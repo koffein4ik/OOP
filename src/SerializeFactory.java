@@ -10,24 +10,21 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 
 abstract class SerializeFactory {
-    abstract void serialize(File fileToSave);
-    abstract void deserialize(File fileToRead);
+    abstract void serialize(File fileToSave, ArrayList<Object> objToSerialize);
+    abstract ArrayList<Object> deserialize(File fileToRead);
+    abstract String getExtension();
 }
 
 class BinarySerializer extends SerializeFactory{
-    public void serialize(File fileToSave)
+    public void serialize(File fileToSave, ArrayList<Object> objToSerialize)
     {
         try
         {
-            fileToSave.createNewFile();
-            //FileOutputStream fOut = new FileOutputStream(fileToSave.getAbsolutePath());
-            String serNumber = "0\n";
-           // fOut.write(serNumber.getBytes());
-            //fOut.close();
-            ArrayList<Object> objectsToSerialize = new ArrayList<>();
-            objectsToSerialize = ClassEditor.getObjectsToSerialize();
-            ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(fileToSave.getAbsolutePath(), false));
-            out.writeBytes(serNumber);
+
+            //fileToSave.createNewFile();
+            ArrayList<Object> objectsToSerialize = objToSerialize;
+            objectsToSerialize = ClassEditor.getObjectsToSerialize(objToSerialize);
+            ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(fileToSave.getAbsolutePath() + ".bin", false));
             for (int i = 0; i < objectsToSerialize.size(); i++)
             {
                 Object obj = objectsToSerialize.get(i);
@@ -41,45 +38,47 @@ class BinarySerializer extends SerializeFactory{
         }
     }
 
-    public void deserialize(File fileToRead)
+    public ArrayList<Object> deserialize(File fileToRead)
     {
         try
         {
             FileInputStream fInput = new FileInputStream(fileToRead.getAbsolutePath());
             ObjectInputStream in = new ObjectInputStream(fInput);
-            System.out.println(in.readByte());
-            System.out.println(in.readByte());
             Object obj = in.readObject();
-            ClassEditor.createdClasses.clear();
+            ArrayList<Object> temp = new ArrayList<>();
+            //ClassEditor.createdClasses.clear();
             while (obj != null)
             {
-                ClassEditor.createdClasses.add(obj);
+                temp.add(obj);
                 if (fInput.available() > 0)
                     obj = in.readObject();
                 else
                     break;
             }
             in.close();
-            ClassEditor.restoreConnections();
-            ClassEditor.update();
+            return temp;
         }
         catch (Exception ex)
         {
             System.out.println(ex.toString());
         }
+        return null;
+    }
+
+    public String getExtension()
+    {
+        return "bin";
     }
 }
 
 class GsonSerializer extends SerializeFactory {
-    public void serialize(File fileToSave)
+    public void serialize(File fileToSave, ArrayList<Object> objectsToSerialize)
     {
         try
         {
-            fileToSave.createNewFile();
-            FileOutputStream fOut = new FileOutputStream(fileToSave.getAbsolutePath(), false);
-            String serNumber = "1\n";
-            fOut.write(serNumber.getBytes());
-            ArrayList<Object> objToSerialize = ClassEditor.getObjectsToSerialize();
+            //fileToSave.createNewFile();
+            FileOutputStream fOut = new FileOutputStream(fileToSave.getAbsolutePath() + ".json", false);
+            ArrayList<Object> objToSerialize = ClassEditor.getObjectsToSerialize(objectsToSerialize);
             for (int i = 0; i < objToSerialize.size(); i++)
             {
                 String typeName = objToSerialize.get(i).getClass().getTypeName() + "\n";
@@ -94,7 +93,6 @@ class GsonSerializer extends SerializeFactory {
                         .registerTypeAdapter(SecurityOfficer.class, new SecurityAdapterSerializer())
                         .registerTypeAdapter(AircrewMember.class, new AirCrewAdapterSerializer())
                         .create();
-                System.out.println(fileToSave.getAbsolutePath());
                 Type objType = objToSerialize.get(i).getClass();
                 String result = gsObject.toJson(objToSerialize.get(i), objType) + "\n";
                 fOut.write(result.getBytes());
@@ -106,13 +104,14 @@ class GsonSerializer extends SerializeFactory {
             System.out.println(ex.toString());
         }
     }
-    public void deserialize (File fileToOpen)
+    public ArrayList<Object> deserialize (File fileToOpen)
     {
         try
         {
+            //ClassEditor.createdClasses.clear();
+            ArrayList<Object> temp1 = new ArrayList<>();
             FileInputStream fIn = new FileInputStream(fileToOpen.getAbsolutePath());
             BufferedReader bufIn = new BufferedReader(new InputStreamReader(fIn));
-            bufIn.readLine();
             Gson gsObject = new GsonBuilder()
                     .registerTypeAdapter(Plane.class, new PlaneAdapterDeSerializer())
                     .registerTypeAdapter(Employee.class, new EmployeeAdapterDeSerializer())
@@ -126,12 +125,12 @@ class GsonSerializer extends SerializeFactory {
                 obj = gsObject.fromJson(line, cl);
                 Field[] fields = cl.getFields();
                 Type arrList = ArrayList.class;
-                ClassEditor.createdClasses.add(obj);
+                //ClassEditor.createdClasses.add(obj);
+                temp1.add(obj);
                 for (Field field : fields)
                 {
                     if (field.getType() == arrList)
                     {
-                        System.out.println("yes");
                         ArrayList<Object> temp = new ArrayList<>();
                         String mehtodName;
                         mehtodName = "get" + field.getName().substring(0, 1).toUpperCase() + field.getName().substring(1);
@@ -148,12 +147,19 @@ class GsonSerializer extends SerializeFactory {
                 }
                 line = bufIn.readLine();
             }
+            return temp1;
         }
         catch (Exception ex)
         {
             System.out.println(ex.toString());
         }
-        ClassEditor.restoreConnections();
+        //ClassEditor.restoreConnections();
+        return null;
+    }
+
+    public String getExtension()
+    {
+        return "json";
     }
 }
 
@@ -241,9 +247,20 @@ class PlaneAdapterDeSerializer implements JsonDeserializer<Plane>
     {
         String classname = json.getAsJsonObject().get("className").getAsString();
         classname = classname.substring(6);
-        Plane pl1 = new Plane();
         Gson gson = new Gson();
-        switch(classname)
+        try
+        {
+            Class<?> cl = Class.forName(classname);
+            //Object pl1 = cl.newInstance();
+            Object pl1 = gson.fromJson(json, cl);
+            return (Plane)pl1;
+        }
+        catch (Exception ex)
+        {
+            System.out.println(ex.toString());
+        }
+        Plane pl1 = new Plane();
+        /*switch(classname)
         {
             case "PassengerPlane" :
             {
@@ -261,8 +278,7 @@ class PlaneAdapterDeSerializer implements JsonDeserializer<Plane>
             {
                 pl1 = gson.fromJson(json, Plane.class);
             }
-        }
-        System.out.println(classname);
+        }*/
         return pl1;
     }
 }
@@ -276,7 +292,18 @@ class EmployeeAdapterDeSerializer implements JsonDeserializer<Employee>
         classname = classname.substring(6);
         Employee empl1 = new Employee();
         Gson gson = new Gson();
-        switch(classname)
+        try
+        {
+            Class<?> cl = Class.forName(classname);
+            //Object empl = cl.newInstance();
+            Object empl = gson.fromJson(json, cl);
+            return (Employee) empl;
+        }
+        catch (Exception ex)
+        {
+            System.out.println(ex.toString());
+        }
+        /*switch(classname)
         {
             case "Pilot" :
             {
@@ -294,33 +321,31 @@ class EmployeeAdapterDeSerializer implements JsonDeserializer<Employee>
             {
                 empl1 = new AircrewMember();
                 empl1 = gson.fromJson(json, AircrewMember.class);
+                break;
             }
             default:
             {
                 empl1 = gson.fromJson(json, Employee.class);
             }
-        }
-        System.out.println(classname);
+        }*/
         return empl1;
     }
 }
 
 class koffSerializer extends SerializeFactory
 {
-    public void serialize(File fileToSave)
+    public void serialize(File fileToSave, ArrayList<Object> objToSerialize)
     {
         try
         {
-            fileToSave.createNewFile();
-            FileOutputStream fOut = new FileOutputStream(fileToSave.getAbsolutePath(), false);
-            String serNumber = "2\n";
-            fOut.write(serNumber.getBytes());
+            //fileToSave.createNewFile();
+            FileOutputStream fOut = new FileOutputStream(fileToSave.getAbsolutePath() + ".kof", false);
             ArrayList<Object> objectsToSerialize = new ArrayList<>();
-            objectsToSerialize = ClassEditor.getObjectsToSerialize();
+            System.out.println(objToSerialize.size());
+            objectsToSerialize = ClassEditor.getObjectsToSerialize(objToSerialize);
             for (int i = 0; i < objectsToSerialize.size(); i++)
             {
                 String serializedObject = serializeObject(objectsToSerialize.get(i), false);
-                System.out.println(serializedObject);
                 fOut.write(serializedObject.getBytes());
             }
             fOut.close();
@@ -331,26 +356,28 @@ class koffSerializer extends SerializeFactory
         }
     }
 
-    public void deserialize(File fileToOpen)
+    public ArrayList<Object> deserialize(File fileToOpen)
     {
         try
         {
+            ArrayList<Object> result = new ArrayList<>();
             FileInputStream fIn = new FileInputStream(fileToOpen.getAbsolutePath());
             BufferedReader bufIn = new BufferedReader(new InputStreamReader(fIn));
-            bufIn.readLine();
             String line = bufIn.readLine();
             ArrayList<Object> objToAdd = new ArrayList<>();
             while (line != null)
             {
-                //objToAdd.add(deserializeObject(bufIn, line));
-                ClassEditor.createdClasses.add(deserializeObject(bufIn, line));
+                //ClassEditor.createdClasses.add(deserializeObject(bufIn, line));
+                result.add(deserializeObject(bufIn, line));
                 line = bufIn.readLine();
             }
+            return result;
         }
         catch (Exception ex)
         {
             System.out.println(ex.toString());
         }
+        return null;
     }
 
     public String serializeObject(Object obj, Boolean isInArrayList)
@@ -379,7 +406,6 @@ class koffSerializer extends SerializeFactory
                     if (value == null) value = "";
                     if (isInArrayList) result += "  ";
                     result += " " + field.getName() + " : " + value + ";\n";
-                    System.out.println(field);
                     continue;
                 }
                 if (field.getType() == ArrayList.class)
@@ -438,14 +464,12 @@ class koffSerializer extends SerializeFactory
                 }
             }
             line = bufIn.readLine();
-            //System.out.println(line);
             return obj;
         }
         catch (Exception ex)
         {
             System.out.println(ex.toString());
         }
-        //Object resultObj = new Object();//ИЗМЕНИТЬ
         return null;
     }
 
@@ -455,7 +479,6 @@ class koffSerializer extends SerializeFactory
         try
         {
             bufIn.readLine();
-            //bufIn.readLine();
             String line = bufIn.readLine();
             while (!(line.trim().equals("]")))
             {
@@ -469,5 +492,10 @@ class koffSerializer extends SerializeFactory
             System.out.println(ex.toString());
         }
         return result;
+    }
+
+    public String getExtension()
+    {
+        return "kof";
     }
 }

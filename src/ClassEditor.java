@@ -1,5 +1,5 @@
 import com.google.gson.Gson;
-import com.sun.corba.se.impl.ior.OldJIDLObjectKeyTemplate;
+//import com.sun.corba.se.impl.ior.OldJIDLObjectKeyTemplate;
 import javafx.application.Application;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -33,9 +33,6 @@ public class ClassEditor extends Application {
 
     @Override
     public void start(Stage primaryStage) {
-        Airport airp1 = new Airport();
-        Airport airp2 = new Airport();
-        System.out.println(airp1.equals(airp2));
         Pane root = new Pane();
         root.setPadding(new Insets(10));
         ListView<String> createdClassesView = new ListView<>(objectsList);
@@ -143,30 +140,27 @@ public class ClassEditor extends Application {
                     serFactory.add(new BinarySerializer());
                     serFactory.add(new GsonSerializer());
                     serFactory.add(new koffSerializer());
-                    try
-                    {
-                        FileInputStream fIn = new FileInputStream(openedFile.getAbsolutePath());
-                        BufferedReader bufIn = new BufferedReader(new InputStreamReader(fIn));
-                        String line = bufIn.readLine();
-                        if (line.length() < 3)
+                    String fileExtenstion = openedFile.getAbsolutePath();
+                    fileExtenstion = fileExtenstion.substring(fileExtenstion.lastIndexOf(".") + 1);
+                    //System.out.println(fileExtenstion);
+                    ClassEditor.createdClasses.clear();
+                        /*switch (fileExtenstion)
                         {
-                            int serNumber = Integer.parseInt(line);
-                            System.out.println(serNumber);
-                            serFactory.get(serNumber).deserialize(openedFile);
-                        }
-                        else
+                            case "bin" : ClassEditor.createdClasses = serFactory.get(0).deserialize(openedFile); break;
+                            case "json" : ClassEditor.createdClasses = serFactory.get(1).deserialize(openedFile); break;
+                            case "kof" : ClassEditor.createdClasses = serFactory.get(2).deserialize(openedFile); break;
+                        }*/
+                        for (int i = 0; i < serFactory.size(); i++)
                         {
-                            serFactory.get(0).deserialize(openedFile);
+                            if (fileExtenstion.equals(serFactory.get(i).getExtension()))
+                            {
+                                ClassEditor.createdClasses = serFactory.get(i).deserialize(openedFile);
+                            }
                         }
-                        bufIn.close();
-                        fIn.close();
-                    }
-                    catch (Exception ex)
-                    {
-                        ex.toString();
-                    }
-                    System.out.println(openedFile.getAbsolutePath());
+                    ClassEditor.restoreConnections(ClassEditor.createdClasses);
                     ClassEditor.update();
+                    System.out.println(openedFile.getAbsolutePath());
+                    //ClassEditor.update();
                 }
             }
         });
@@ -179,7 +173,6 @@ public class ClassEditor extends Application {
                 {
                     ChooseSerializationType.createWindow(saveFile);
                     System.out.println(saveFile.getAbsolutePath());
-                    BinarySerializer binSer = new BinarySerializer();
                 }
             }
         });
@@ -210,18 +203,17 @@ public class ClassEditor extends Application {
         return !(createdClasses.contains(obj));
     }
 
-    public static ArrayList<Object> getObjectsToSerialize() {
+    public static ArrayList<Object> getObjectsToSerialize(ArrayList<Object> objectsToCheck) {
         ArrayList<Object> result = new ArrayList<>();
         ArrayList<Object> objectsToRemove = new ArrayList<>();
-        for (int i = 0; i < createdClasses.size(); i++) {
-            result.add(createdClasses.get(i));
+        for (int i = 0; i < objectsToCheck.size(); i++) {
+            result.add(objectsToCheck.get(i));
         }
         for (int i = 0; i < result.size(); i++) {
             Field[] fields = result.get(i).getClass().getFields();
             Type arrList = ArrayList.class;
             for (Field field : fields) {
                 if (field.getType() == arrList) {
-                    System.out.println("yes");
                     ArrayList<Object> temp = new ArrayList<>();
                     String mehtodName;
                     mehtodName = "get" + field.getName().substring(0, 1).toUpperCase() + field.getName().substring(1);
@@ -245,11 +237,11 @@ public class ClassEditor extends Application {
         return result;
     }
 
-    public static void restoreConnections()
+    public static void restoreConnections(ArrayList<Object> objectsToCheck)
     {
-        for (int i = 0; i < createdClasses.size(); i++)
+        for (int i = 0; i < objectsToCheck.size(); i++)
         {
-            Object obj = createdClasses.get(i);
+            Object obj = objectsToCheck.get(i);
             Field[] fields = obj.getClass().getFields();
             for (Field field : fields)
             {
