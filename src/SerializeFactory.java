@@ -10,39 +10,44 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 
 abstract class SerializeFactory {
-    abstract void serialize(File fileToSave, ArrayList<Object> objToSerialize);
-    abstract ArrayList<Object> deserialize(File fileToRead);
+    abstract String serialize(File fileToSave, ArrayList<Object> objToSerialize);
+    abstract ArrayList<Object> deserialize(String info);
     abstract String getExtension();
 }
 
 class BinarySerializer extends SerializeFactory{
-    public void serialize(File fileToSave, ArrayList<Object> objToSerialize)
+    public String serialize(File fileToSave, ArrayList<Object> objToSerialize)
     {
         try
         {
-
             //fileToSave.createNewFile();
             ArrayList<Object> objectsToSerialize = objToSerialize;
             objectsToSerialize = ClassEditor.getObjectsToSerialize(objToSerialize);
-            ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(fileToSave.getAbsolutePath() + ".bin", false));
+            //ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(fileToSave.getAbsolutePath() + ".bin", false));
+            ByteArrayOutputStream bos = new ByteArrayOutputStream();
+            ObjectOutputStream out = new ObjectOutputStream(bos);
             for (int i = 0; i < objectsToSerialize.size(); i++)
             {
                 Object obj = objectsToSerialize.get(i);
                 out.writeObject(obj);
             }
             out.close();
+            return bos.toString();
         }
         catch (Exception ex)
         {
             System.out.println(ex.toString());
         }
+        return null;
     }
 
-    public ArrayList<Object> deserialize(File fileToRead)
+    public ArrayList<Object> deserialize(String serInfo)
     {
         try
         {
-            FileInputStream fInput = new FileInputStream(fileToRead.getAbsolutePath());
+            //FileInputStream fInput = new FileInputStream(fileToRead.getAbsolutePath());
+            //ObjectInputStream in = new ObjectInputStream(fInput);
+            ByteArrayInputStream fInput = new ByteArrayInputStream(serInfo.getBytes());
             ObjectInputStream in = new ObjectInputStream(fInput);
             Object obj = in.readObject();
             ArrayList<Object> temp = new ArrayList<>();
@@ -72,12 +77,13 @@ class BinarySerializer extends SerializeFactory{
 }
 
 class GsonSerializer extends SerializeFactory {
-    public void serialize(File fileToSave, ArrayList<Object> objectsToSerialize)
+    public String serialize(File fileToSave, ArrayList<Object> objectsToSerialize)
     {
         try
         {
             //fileToSave.createNewFile();
-            FileOutputStream fOut = new FileOutputStream(fileToSave.getAbsolutePath() + ".json", false);
+            //FileOutputStream fOut = new FileOutputStream(fileToSave.getAbsolutePath() + ".json", false);
+            ByteArrayOutputStream fOut = new ByteArrayOutputStream();
             ArrayList<Object> objToSerialize = ClassEditor.getObjectsToSerialize(objectsToSerialize);
             for (int i = 0; i < objToSerialize.size(); i++)
             {
@@ -98,20 +104,24 @@ class GsonSerializer extends SerializeFactory {
                 fOut.write(result.getBytes());
             }
             fOut.close();
+            return fOut.toString();
         }
         catch (Exception ex)
         {
             System.out.println(ex.toString());
         }
+        return null;
     }
-    public ArrayList<Object> deserialize (File fileToOpen)
+    public ArrayList<Object> deserialize (String serInfo)
     {
         try
         {
+            ByteArrayInputStream fInput = new ByteArrayInputStream(serInfo.getBytes());
+            BufferedReader bufIn = new BufferedReader(new InputStreamReader(fInput));
             //ClassEditor.createdClasses.clear();
             ArrayList<Object> temp1 = new ArrayList<>();
-            FileInputStream fIn = new FileInputStream(fileToOpen.getAbsolutePath());
-            BufferedReader bufIn = new BufferedReader(new InputStreamReader(fIn));
+            //FileInputStream fIn = new FileInputStream(fileToOpen.getAbsolutePath());
+            //BufferedReader bufIn = new BufferedReader(new InputStreamReader(fIn));
             Gson gsObject = new GsonBuilder()
                     .registerTypeAdapter(Plane.class, new PlaneAdapterDeSerializer())
                     .registerTypeAdapter(Employee.class, new EmployeeAdapterDeSerializer())
@@ -334,12 +344,13 @@ class EmployeeAdapterDeSerializer implements JsonDeserializer<Employee>
 
 class koffSerializer extends SerializeFactory
 {
-    public void serialize(File fileToSave, ArrayList<Object> objToSerialize)
+    public String serialize(File fileToSave, ArrayList<Object> objToSerialize)
     {
         try
         {
             //fileToSave.createNewFile();
-            FileOutputStream fOut = new FileOutputStream(fileToSave.getAbsolutePath() + ".kof", false);
+            //FileOutputStream fOut = new FileOutputStream(fileToSave.getAbsolutePath() + ".kof", false);
+            ByteArrayOutputStream fOut = new ByteArrayOutputStream();
             ArrayList<Object> objectsToSerialize = new ArrayList<>();
             System.out.println(objToSerialize.size());
             objectsToSerialize = ClassEditor.getObjectsToSerialize(objToSerialize);
@@ -349,19 +360,23 @@ class koffSerializer extends SerializeFactory
                 fOut.write(serializedObject.getBytes());
             }
             fOut.close();
+            return fOut.toString();
         }
         catch (Exception ex)
         {
             System.out.println(ex.toString());
         }
+        return null;
     }
 
-    public ArrayList<Object> deserialize(File fileToOpen)
+    public ArrayList<Object> deserialize(String serInfo)
     {
         try
         {
             ArrayList<Object> result = new ArrayList<>();
-            FileInputStream fIn = new FileInputStream(fileToOpen.getAbsolutePath());
+            //FileInputStream fIn = new FileInputStream(fileToOpen.getAbsolutePath());
+            //BufferedReader bufIn = new BufferedReader(new InputStreamReader(fIn));
+            ByteArrayInputStream fIn = new ByteArrayInputStream(serInfo.getBytes());
             BufferedReader bufIn = new BufferedReader(new InputStreamReader(fIn));
             String line = bufIn.readLine();
             ArrayList<Object> objToAdd = new ArrayList<>();

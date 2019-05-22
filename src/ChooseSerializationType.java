@@ -12,6 +12,7 @@ import javafx.stage.Stage;
 import sun.plugin2.main.server.Plugin;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.util.ArrayList;
 
 public class ChooseSerializationType extends Application {
@@ -59,7 +60,26 @@ public class ChooseSerializationType extends Application {
         okBtn.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                serFactory.get(cbSerType.getSelectionModel().getSelectedIndex()).serialize(saveFile, ClassEditor.createdClasses);
+                String serResult = serFactory.get(cbSerType.getSelectionModel().getSelectedIndex()).serialize(saveFile, ClassEditor.createdClasses);
+                try
+                {
+                    FileOutputStream fOut;
+                    if (cbPluginChooser.getSelectionModel().getSelectedIndex() > 0)
+                    {
+                        serResult = plugins.get(cbPluginChooser.getSelectionModel().getSelectedIndex()).encode(serResult);
+                        fOut = new FileOutputStream(saveFile.getAbsolutePath() + "." + serFactory.get(cbSerType.getSelectionModel().getSelectedIndex() - 1).getExtension() + "." + plugins.get(cbPluginChooser.getSelectionModel().getSelectedIndex()).getExtension(), false);
+                    }
+                    else
+                    {
+                        fOut = new FileOutputStream(saveFile.getAbsolutePath() + "." + serFactory.get(cbSerType.getSelectionModel().getSelectedIndex() - 1).getExtension(), false);
+                    }
+                    fOut.write(serResult.getBytes());
+                    fOut.close();
+                }
+                catch (Exception ex)
+                {
+                    System.out.println(ex.toString());
+                }
             }
         });
         okBtn.setLayoutX(50);

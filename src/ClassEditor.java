@@ -12,10 +12,7 @@ import javafx.scene.layout.Pane;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
@@ -140,27 +137,47 @@ public class ClassEditor extends Application {
                     serFactory.add(new BinarySerializer());
                     serFactory.add(new GsonSerializer());
                     serFactory.add(new koffSerializer());
+                    ArrayList<encoder> plugins = PluginTest.getPlugins();
                     String fileExtenstion = openedFile.getAbsolutePath();
                     fileExtenstion = fileExtenstion.substring(fileExtenstion.lastIndexOf(".") + 1);
                     //System.out.println(fileExtenstion);
                     ClassEditor.createdClasses.clear();
-                        /*switch (fileExtenstion)
+                    try
+                    {
+                        FileInputStream fIn = new FileInputStream(openedFile.getAbsolutePath());
+                        BufferedInputStream bufIn = new BufferedInputStream(fIn);
+                        String strFromFile = "";
+                        int c;
+                        while((c = bufIn.read()) != (-1))
                         {
-                            case "bin" : ClassEditor.createdClasses = serFactory.get(0).deserialize(openedFile); break;
-                            case "json" : ClassEditor.createdClasses = serFactory.get(1).deserialize(openedFile); break;
-                            case "kof" : ClassEditor.createdClasses = serFactory.get(2).deserialize(openedFile); break;
-                        }*/
-                        for (int i = 0; i < serFactory.size(); i++)
-                        {
-                            if (fileExtenstion.equals(serFactory.get(i).getExtension()))
+                            strFromFile += (char)c;
+                        }
+                        for (int i = 0; i < plugins.size(); i++) {
+                            if (plugins.get(i).getExtension().equals(fileExtenstion))
                             {
-                                ClassEditor.createdClasses = serFactory.get(i).deserialize(openedFile);
+                                String deCodeResult = plugins.get(i).decode(strFromFile);
+                                fileExtenstion = openedFile.getAbsolutePath();
+                                fileExtenstion = fileExtenstion.substring(0, fileExtenstion.lastIndexOf("."));
+                                fileExtenstion = fileExtenstion.substring(fileExtenstion.lastIndexOf(".") + 1);
+                                System.out.println(fileExtenstion);
+                                System.out.println();
+                                for (int j = 0; j < serFactory.size(); j++)
+                                {
+                                    if (serFactory.get(j).getExtension().equals(fileExtenstion))
+                                    {
+                                        ClassEditor.createdClasses = serFactory.get(j).deserialize(deCodeResult);
+                                    }
+                                }
                             }
                         }
-                    ClassEditor.restoreConnections(ClassEditor.createdClasses);
-                    ClassEditor.update();
-                    System.out.println(openedFile.getAbsolutePath());
-                    //ClassEditor.update();
+                        ClassEditor.restoreConnections(ClassEditor.createdClasses);
+                        ClassEditor.update();
+                        System.out.println(openedFile.getAbsolutePath());
+                    }
+                    catch (Exception ex)
+                    {
+                        System.out.println(ex.toString());
+                    }
                 }
             }
         });
