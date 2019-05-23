@@ -1,4 +1,0 @@
-Plane
-{"name":"ABC","maxSpeed":0,"flightRange":0,"maxHeight":0,"fuelCapacity":0,"crewMembers":0}
-Airport
-{"name":"Heathrow","passengersPerYear":0,"planes":[{"name":"ABC","maxSpeed":0,"flightRange":0,"maxHeight":0,"fuelCapacity":0,"crewMembers":0}],"employees":[]}

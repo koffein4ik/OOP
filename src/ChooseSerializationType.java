@@ -60,20 +60,23 @@ public class ChooseSerializationType extends Application {
         okBtn.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                String serResult = serFactory.get(cbSerType.getSelectionModel().getSelectedIndex()).serialize(saveFile, ClassEditor.createdClasses);
+                byte[] serResult = serFactory.get(cbSerType.getSelectionModel().getSelectedIndex()).serialize(ClassEditor.createdClasses);
+                String strResult = "";
                 try
                 {
+                    int selecetdIndex = cbPluginChooser.getSelectionModel().getSelectedIndex();
                     FileOutputStream fOut;
                     if (cbPluginChooser.getSelectionModel().getSelectedIndex() > 0)
                     {
-                        serResult = plugins.get(cbPluginChooser.getSelectionModel().getSelectedIndex()).encode(serResult);
-                        fOut = new FileOutputStream(saveFile.getAbsolutePath() + "." + serFactory.get(cbSerType.getSelectionModel().getSelectedIndex() - 1).getExtension() + "." + plugins.get(cbPluginChooser.getSelectionModel().getSelectedIndex()).getExtension(), false);
+                        strResult = plugins.get(cbPluginChooser.getSelectionModel().getSelectedIndex() - 1).encode(serResult);
+                        fOut = new FileOutputStream(saveFile.getAbsolutePath() + "." + serFactory.get(cbSerType.getSelectionModel().getSelectedIndex()).getExtension() + "." + plugins.get(cbPluginChooser.getSelectionModel().getSelectedIndex() - 1).getExtension(), false);
+                        fOut.write(strResult.getBytes());
                     }
                     else
                     {
-                        fOut = new FileOutputStream(saveFile.getAbsolutePath() + "." + serFactory.get(cbSerType.getSelectionModel().getSelectedIndex() - 1).getExtension(), false);
+                        fOut = new FileOutputStream(saveFile.getAbsolutePath() + "." + serFactory.get(cbSerType.getSelectionModel().getSelectedIndex()).getExtension(), false);
+                        fOut.write(serResult);
                     }
-                    fOut.write(serResult.getBytes());
                     fOut.close();
                 }
                 catch (Exception ex)

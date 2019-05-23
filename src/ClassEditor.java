@@ -16,6 +16,7 @@ import java.io.*;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
+import java.nio.file.Files;
 import java.util.ArrayList;
 
 public class ClassEditor extends Application {
@@ -144,18 +145,20 @@ public class ClassEditor extends Application {
                     ClassEditor.createdClasses.clear();
                     try
                     {
+                        Boolean deserealized = false;
                         FileInputStream fIn = new FileInputStream(openedFile.getAbsolutePath());
                         BufferedInputStream bufIn = new BufferedInputStream(fIn);
-                        String strFromFile = "";
-                        int c;
-                        while((c = bufIn.read()) != (-1))
-                        {
-                            strFromFile += (char)c;
-                        }
+                        byte[] filecontent = Files.readAllBytes(openedFile.toPath());
+                        String strFromFile = new String(filecontent);
+//                        int c;
+//                        while((c = bufIn.read()) != (-1))
+//                        {
+//                            strFromFile += (byte)c;
+//                        }
                         for (int i = 0; i < plugins.size(); i++) {
                             if (plugins.get(i).getExtension().equals(fileExtenstion))
                             {
-                                String deCodeResult = plugins.get(i).decode(strFromFile);
+                                byte[] deCodeResult = plugins.get(i).decode(strFromFile);
                                 fileExtenstion = openedFile.getAbsolutePath();
                                 fileExtenstion = fileExtenstion.substring(0, fileExtenstion.lastIndexOf("."));
                                 fileExtenstion = fileExtenstion.substring(fileExtenstion.lastIndexOf(".") + 1);
@@ -166,7 +169,19 @@ public class ClassEditor extends Application {
                                     if (serFactory.get(j).getExtension().equals(fileExtenstion))
                                     {
                                         ClassEditor.createdClasses = serFactory.get(j).deserialize(deCodeResult);
+                                        deserealized = true;
                                     }
+                                }
+                            }
+                        }
+                        if (!deserealized)
+                        {
+                            for (int j = 0; j < serFactory.size(); j++)
+                            {
+                                if (serFactory.get(j).getExtension().equals(fileExtenstion))
+                                {
+                                    ClassEditor.createdClasses = serFactory.get(j).deserialize(filecontent);
+                                    deserealized = true;
                                 }
                             }
                         }
