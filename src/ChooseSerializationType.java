@@ -33,14 +33,22 @@ public class ChooseSerializationType extends Application {
         Stage serializationChooser = new Stage();
         ObservableList<String> availableSerTypes = FXCollections.observableArrayList();
         ObservableList<String> availablePlugins = FXCollections.observableArrayList();
-        availableSerTypes.add("Binary");
-        availableSerTypes.add("JSON");
-        availableSerTypes.add("koffSerializer");
+//        availableSerTypes.add("Binary");
+//        availableSerTypes.add("JSON");
+//        availableSerTypes.add("koffSerializer");
         ArrayList<encoder> plugins = PluginTest.getPlugins();
         availablePlugins.add("Don't use plugin");
         for (int i = 0; i < plugins.size(); i++)
         {
             availablePlugins.add(plugins.get(i).getClass().getName());
+        }
+        ArrayList<SerializeFactory> serFactory = new ArrayList<>();
+        serFactory.add(new BinarySerializer());
+        serFactory.add(new GsonSerializer());
+        serFactory.add(new koffSerializer());
+        for (int i = 0; i < serFactory.size(); i++)
+        {
+            availableSerTypes.add(serFactory.get(i).getExtension());
         }
         ComboBox cbSerType = new ComboBox(availableSerTypes);
         ComboBox cbPluginChooser = new ComboBox(availablePlugins);
@@ -53,10 +61,6 @@ public class ChooseSerializationType extends Application {
         cbPluginChooser.setPrefWidth(120);
         cbPluginChooser.setLayoutY(40);
         cbSerType.getSelectionModel().selectFirst();
-        ArrayList<SerializeFactory> serFactory = new ArrayList<>();
-        serFactory.add(new BinarySerializer());
-        serFactory.add(new GsonSerializer());
-        serFactory.add(new koffSerializer());
         okBtn.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
