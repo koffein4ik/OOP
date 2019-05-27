@@ -1,0 +1,71 @@
+Airport
+{
+ name : Heathrow;
+ location : ;
+ passengersPerYear : 0;
+ iataCode : ;
+ timeZone : ;
+ planes
+ [
+  Plane
+  {
+   name : Boeing;
+   model : ;
+   regNumber : ;
+   maxSpeed : 0;
+   flightRange : 0;
+   maxHeight : 0;
+   fuelCapacity : 0;
+   crewMembers : 0;
+  }
+  PassengerPlane
+  {
+   passengerCapacity : 0;
+ passengers
+ [
+  Passenger
+  {
+   departurePoint : ;
+   arrivalPoint : ;
+   ticketNumber : ;
+   departureTime : ;
+   name : Carl;
+   surname : ;
+   age : 0;
+   nationality : ;
+   education : ;
+  }
+ ]
+   name : Airbus;
+   model : ;
+   regNumber : ;
+   maxSpeed : 0;
+   flightRange : 0;
+   maxHeight : 0;
+   fuelCapacity : 0;
+   crewMembers : 0;
+  }
+ ]
+ employees
+ [
+  Pilot
+  {
+   experience : ;
+   lastFlightDate : ;
+   masteredAircrafts : ;
+   flightHours : 0;
+   aircraft : ;
+   languagesSpoken : ;
+   defaultRoute : ;
+   airline : ;
+   cardId : ;
+   salary : 0;
+   position : ;
+   name : Tom;
+   surname : ;
+   age : 0;
+   nationality : ;
+   education : ;
+  }
+ ]
+}

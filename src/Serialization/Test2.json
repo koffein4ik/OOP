@@ -1,0 +1,2 @@
+Airport
+{"name":"Heathrow","passengersPerYear":0,"planes":[{"name":"Boeing","maxSpeed":0,"flightRange":0,"maxHeight":0,"fuelCapacity":0,"crewMembers":0,"className":"class Plane"},{"passengerCapacity":0,"passengers":[{"name":"Carl","age":0}],"name":"Airbus","maxSpeed":0,"flightRange":0,"maxHeight":0,"fuelCapacity":0,"crewMembers":0,"className":"class PassengerPlane"}],"employees":[{"flightHours":0,"salary":0,"name":"Tom","age":0,"className":"class Pilot"}]}
